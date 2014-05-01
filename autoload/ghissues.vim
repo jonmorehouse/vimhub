@@ -250,61 +250,72 @@ def saveGissue():
   parens = vim.current.buffer.name.split("/")
   number = parens[3]
 
+  # issue hash
   issue = {
-    'title': '',
+    'title': vim.current.buffer[0].split("# ")[1].split(" (" + number + ")")[0],
     'body': '',
   }
 
-  issue['title'] = vim.current.buffer[0].split("# ")[1].split(" (" + number + ")")[0]
-
+  global commentmode
+  global comment
   commentmode = 0
-
   comment = ""
-  
-  for line in vim.current.buffer[1:]:
-    if commentmode == 1:
+
+  # comment handler function
+  def commentHandler(line):
+    return False
+    global commentmode
+    global comment
+    # return false if not in comment mode
+    if not line == "## Comments" and commentmode == 0:
+      return False
+    # in comment mode 
+    if line == "## Comments":
+      commentmode = 1
+    elif commentmode == 1:
       if line == "## Add a comment":
         commentmode = 2
-      continue
-    if commentmode == 2:
+    elif commentmode == 2:
       if line != "":
         commentmode = 3
         comment += line + "\n"
-      continue
     if commentmode == 3:
       comment += line + "\n"
+    return True
+
+  # return the line type
+  def lineHandler(line):
+    attrs = ["Reported By", "State", "Labels", "Assignee"] 
+    # if none of these attributes are a part of this line then return body
+    for attr in attrs:
+      lineAttr = "## %s:" % attr
+      if not line.startswith(lineAttr):
+        continue
+      # handle current attribute
+      attrType = attr.lower().replace(" ", "_")
+      print line.partition(attrType)
+
+      value = [piece for piece in line.split(lineAttr) if not piece in ["", " "]]
+      print value
+
+    return "body", line
+
+  # iterate through the current buffer and generate issue/comments
+  for line in vim.current.buffer[1:]:
+
+    # check if comment handler
+    if commentHandler(line):
       continue
-      
-    if line == "## Comments":
-      commentmode = 1
-      continue
+
+    lineType, value = lineHandler(line)
+    print lineType
+    print value
+
     if len(line.split("## Reported By:")) > 1:
       continue
 
-    state = line.split("## State: ")
-    if len(state) > 1:
-      if state[1].lower() == "closed":
-        issue['state'] = "closed"
-      else: issue['state'] = "open"
-      continue
+  return
 
-    labels = line.split("## Labels: ")
-    if len(labels) > 1:
-      issue['labels'] = labels[1].split(', ')
-      continue
-
-    assignee = line.split("## Assignee: ")
-    if len(assignee) > 1 and assignee[1]:
-      issue['assignee'] = assignee[1]
-      continue
-
-    if issue['body'] != '':
-      issue['body'] += '\n'
-    issue['body'] += line
-
-  # remove blank entries
-  issue['labels'] = filter(bool, issue['labels'])
-  
   if number == "new":
     url = ghUrl("/issues")
     request = urllib2.Request(url, json.dumps(issue))
