@@ -10,6 +10,11 @@ import vim
 import json
 import urllib2
 import re
+import sys
+
+# import local module
+sys.path.append("../lib")
+import test
 
 # dictionary of github repo URLs for caching
 github_repos = {}
@@ -50,7 +55,9 @@ def getRepoURI():
   return ""
 
 def showIssueList(labels, ignore_cache = False):
+  test.test()
   repourl = getRepoURI()
+  repourl = ""
 
   if repourl == "":
     print "Failed to find a suitable Github repository URL, sorry!"
@@ -285,19 +292,18 @@ def saveGissue():
 
   # return the line type
   def lineHandler(line):
-    attrs = ["Reported By", "State", "Labels", "Assignee"] 
+    attrs = ["# Title:", "## Reported By:", "## State:", "## Labels:", "## Assignee:"] 
     # if none of these attributes are a part of this line then return body
     for attr in attrs:
-      lineAttr = "## %s:" % attr
-      if not line.startswith(lineAttr):
+      if not line.startswith(attr):
         continue
       # handle current attribute
-      attrType = attr.lower().replace(" ", "_")
-      print line.partition(attrType)
-
-      value = [piece for piece in line.split(lineAttr) if not piece in ["", " "]]
-      print value
-
+      attrType = attr.replace("#", "").strip().lower().replace(" ", "_")
+      line.partition(attr)
+      value = line.partition(attr)[2].strip()
+      if value.isspace():
+        return attrType, False
+      return attrType, value
     return "body", line
 
   # iterate through the current buffer and generate issue/comments
@@ -308,11 +314,7 @@ def saveGissue():
       continue
 
     lineType, value = lineHandler(line)
-    print lineType
-    print value
-
-    if len(line.split("## Reported By:")) > 1:
-      continue
+    print "%s = %s" % (lineType, value)
 
   return
 
