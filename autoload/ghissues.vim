@@ -11,10 +11,16 @@ import json
 import urllib2
 import re
 import sys
+import os
+
+sys.path.append(os.path.expandvars("$HOME/Documents/programs/github-issues.vim/lib"))
+
+import name
+name.test()
 
 # import local module
-sys.path.append("../lib")
-import test
+#sys.path.append("../lib")
+# import name
 
 # dictionary of github repo URLs for caching
 github_repos = {}
@@ -55,7 +61,7 @@ def getRepoURI():
   return ""
 
 def showIssueList(labels, ignore_cache = False):
-  test.test()
+
   repourl = getRepoURI()
   repourl = ""
 
