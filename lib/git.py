@@ -54,6 +54,4 @@ def get_remote(path, upstream_preferred = False):
 def get_uri(path):
     
 
-
-
     return 

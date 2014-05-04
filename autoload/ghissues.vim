@@ -121,6 +121,8 @@ def getIssueList(repourl, query, ignore_cache = False):
       url = ghUrl("/issues?labels="+query)
     else:
       url = ghUrl("/issues")
+
+
     try:
       github_datacache[repourl] = []
       while pages_loaded < int(vim.eval("g:github_issues_max_pages")):
@@ -145,6 +147,10 @@ def getIssueList(repourl, query, ignore_cache = False):
     cache_count += 1
 
   return github_datacache[repourl]
+
+
+
+
 
 def populateOmniComplete():
   url = getRepoURI()
