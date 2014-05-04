@@ -20,17 +20,18 @@ class TestUtils(unittest.TestCase):
         path = utils.github_url(self.endpoint, self.params)
         self.assertTrue(len(path) > 0)
 
-    #def test_github_request(self):
+    def test_github_request(self):
 
-        #response, status = utils.github_request(self.url)
-        #self.assertTrue(response)
-        #self.assertTrue(status)
+        response, status = utils.github_request(self.url)
+        self.assertTrue(response)
+        self.assertTrue(status)
 
     def test_github_paging_request(self):
 
-        url = utils.github_url("repos/homebrew/homebrew/issues")
-        response, status = utils.github_request(url)
-
+        url = utils.github_url("repos/jaxbot/github-issues.vim/issues", self.params)
+        data, status = utils.github_request(url)
+        self.assertTrue(data)
+        self.assertTrue(status)
 
 if __name__ == "__main__":
     unittest.main()
