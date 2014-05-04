@@ -55,28 +55,28 @@ def github_request(url, method = "get", data = None, limit = config.max_api_page
     if not status:
         return res, status
 
-    # hash the current value
-    url_hash[url] = res # hash
-    if limit == 0 or not "link" in res_headers.keys():
-        return res, status
+    # hash the current url 
+    url_hash[url] = res_hash
+
+    # decide whether to return now or return later
+    if limit == 0 or not "link" in res_headers.keys(): 
+        return res_hash, status
 
     # handle the complex hashing to combine all results
-    next_url_match = re.match(r"<(?P<next_url>[^>]+)>; rel=\"next\"", res_headers['Link'])
-    last_url_match = re.match(r"rel=\"last\"", res_headers['Link'])
-    if not next_url_match or last_url_match:
-        break
+    try:
+        next_url_match = re.match(r"<(?P<next_url>[^>]+)>; rel=\"next\"", res_headers['Link'])
         url = next_url_match.group('next_url')
-        print res_headers["Link"]
-        print "TEST"
+        if not next_url_match:
+            return res_hash, status
+    except any as e:
+        return e
+    if not next_url_match:
+        print "NO NEXT"
+    else:
         sub_hash, sub_status = github_request(url, method, None, limit - 1)
         if not sub_status:
             return sub_hash, sub_status
-        # extend the hash as needed
-
-    return res_hash, status
-
-
-
-
+        else: 
+            return res_hash.update(sub_hash), status
 
 
