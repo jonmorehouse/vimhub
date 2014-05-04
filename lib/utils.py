@@ -58,25 +58,11 @@ def github_request(url, method = "get", data = None, limit = config.max_api_page
     # hash the current url 
     url_hash[url] = res_hash
 
-    # decide whether to return now or return later
+    # decide whether to return now or continue recursing
     if limit == 0 or not "link" in res_headers.keys(): 
         return res_hash, status
 
-    # handle the complex hashing to combine all results
-    try:
-        next_url_match = re.match(r"<(?P<next_url>[^>]+)>; rel=\"next\"", res_headers['Link'])
-        url = next_url_match.group('next_url')
-        if not next_url_match:
-            return res_hash, status
-    except any as e:
-        return e
-    if not next_url_match:
-        print "NO NEXT"
-    else:
-        sub_hash, sub_status = github_request(url, method, None, limit - 1)
-        if not sub_status:
-            return sub_hash, sub_status
-        else: 
-            return res_hash.update(sub_hash), status
+    print res_headers["link"]
+
 
 
