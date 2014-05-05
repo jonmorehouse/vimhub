@@ -25,7 +25,7 @@ class Issue:
 
     def __init__(self, number, repo_uri):
 
-        self.error_message = None
+        self.message = None
         self.repo_uri = repo_uri
         self.number = number
         self.issue_uri = "repos/%s/issues/%s" % (self.repo_uri, self.number) 
@@ -55,15 +55,17 @@ class Issue:
         i = cls.get_current_issue()
         if hasattr(i, "url"):
             webbrowser.open(i.url)
+        i.map_buffer()
 
     @classmethod
     def save_issue(cls):
         
         i = cls.get_current_issue()
+        i.position = vim.current.window.cursor
         i.parse() # parse the buffer
         i.save() # push to the server
         i.draw() # update the screen
-        i.map_buffer() # map the buffer
+        i.map_buffer()
 
     @classmethod
     def show_issue(cls, number = "new", repo_uri = None):
@@ -79,17 +81,21 @@ class Issue:
     def toggle_state(cls, state = None):
 
         i = cls.get_current_issue()
+        i.position = vim.current.window.cursor
         i.parse()
-        # parse the current issue
-        if state and state in ("open", "closed", "all"):
-            i.data["state"] = state
-        elif i.data["state"] == "open":
-            i.data["state"] = "closed"
-        else:
-            i.data["state"] = "open"
+        i.change_state()
         i.save()
         i.draw()
+        i.map_buffer()
 
+    def change_state(self):
+
+        if self.data["state"] == "open":
+             self.data["state"] = "closed"
+        else:
+             self.data["state"] = "open"
+        self.message = "State is now %s" % self.data["state"]
+    
     def parse(self):
         # reset body
         self.data["body"] = ""
@@ -127,11 +133,6 @@ class Issue:
         b = utils.get_buffer(self.buffer_name) 
         vim.command("1,$d")
 
-        # handle if an error exists
-        if self.error_message:
-            b.append(error_message)
-            return
-
         # print out issue
         b.append("## %s # %s" % (self.repo_uri, self.number))
         b.append("")
@@ -155,6 +156,10 @@ class Issue:
 
         # remove leading line
         vim.command("1delete _")
+        
+        if hasattr(self, "position"):
+            vim.command(str(self.position[0]))
+            vim.command("|%s" % str(self.position[1]))
 
     def save(self):
 
@@ -172,7 +177,7 @@ class Issue:
         if not self.number == "new":
             data, status = utils.github_request(utils.github_url(self.issue_uri))
             if not status:
-                self.error_message = data
+                self.message = data
                 return
 
             # issue was successfully requested
@@ -193,11 +198,11 @@ class Issue:
         url = utils.github_url(uri)
         data = utils.clean_data(copy.deepcopy(self.data), ["state"])
         if not data:
-            print "Not a valid issue yet ..."
+            self.message = "Issue not ready yet..."
             return
         data, status = utils.github_request(url, "post", data)
         if not status:
-            self.error_message = data
+            self.message = data
             return 
 
         # update attributes as needed for object
@@ -206,11 +211,12 @@ class Issue:
         self.url = data["html_url"]
         self.issue_uri = "repos/%s/issues/%s" % (self.repo_uri, self.number)
         self.comments.number = self.number
+
+        # clean up hash
+        del issue_hash["%s/%s" % (self.repo_uri, "new")]
         issue_hash["%s/%s" % (self.repo_uri, self.number)] = self
-
-        # now delete the current vim buffer
+        # delete the old buffer that we don't need any more
         vim.command("bdelete")
-
 
     def _save_issue(self):
 
