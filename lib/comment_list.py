@@ -1,14 +1,39 @@
+import config
+import utils
+import vim
+import time
+import re
+import user
 
 class CommentList:
 
-    def __init__(self, repo_uri, number):
+    def __init__(self, number, repo_uri):
 
-        pass
+        self.login = user.get_login()
+        self.message = ""
+        self.comments = {}
+        self.user_comments = [] # list of ids that will get updated each time
+        self.repo_uri = repo_uri
+        self.number = number
+        self._get_comments()
 
     # pass in a buffer
     def draw(self, b):
 
-        pass
+        b.append("")
+        b.append("")
+        b.append("## Comments Issue #%s" % self.number)
+        b.append("")
+        for _id, comment in self.comments.iteritems():
+            b.append("## @%s at %s %s" % (comment["user"], comment["time"], comment["id"]))
+            for line in comment["body"]:
+                b.append(line)
+            b.append("")
+
+        # draw out new id!
+        b.append("## New Comment")
+        b.append("")
+        b.append("")
 
     def save(self):
 
@@ -16,17 +41,82 @@ class CommentList:
 
     def parse(self, lines):
 
+        comment = {"body": []}
+        for line in lines[1:]:
+            # skip any empty lines
+            if re.search(r"^\s*$", line):
+                continue
 
+            cmg = re.match(r"## @(?P<login>[^ at]+) (?P<date>.*) (?P<id>.*)", line)
+            if cmg: #start parsing a group
+                self._process_comment(comment)
+                comment = {"login": cmg.group("login"), "id": cmg.group("id"), "body": []}
+            elif re.search(r"^## New Comment", line):
+                self._process_comment(comment)
+                comment = {"login": self.login, "id": "new", "body": []}
+            else:
+                comment["body"].append(line.strip())
+
+        self._process_comment(comment)
+
+
+    def _process_comment(self, comment):
+
+        if not comment.has_key("login") or comment.has_key("id") or not comment["login"] == self.login:
+            print "BAD"
+            return
+
+        # create a new comment
+        if comment["id"] == "new" and len(comment.body) > 0:
+            self._create_comment("\n".join(comment["body"]))
+            return
+        
+        # this is an existing personal comment
+        if len(comment.body) == 0:
+            self._delete_comment(comment["id"])
+            return
+
+        # now compare to the existing comment
+        if comment_hash.has_key(comment["id"]):
+            for old_line, new_line in zip(comment_hash[comment["id"]]["body"], comment["body"]):
+                # line difference
+                if not old_line.strip().lower() == new_line.strip().lower():
+                    self._edit_comment(comment["id"], comment["body"])
+
+    def _edit_comment(self, cid, body):
+
+        print "edit"
         pass
 
-    def update(self, content):
+    def _delete_comment(self, cid):
 
+        print "delete"
         pass
+   
+    def _create_comment(self, comment_body):
 
-
-    def _get_updates(self):
-
+        print "create"
         pass
-
     
+    def _get_comments(self):
+
+        if self.number == "new":
+            return
+
+        # make the request as needed
+        url = utils.github_url("repos/%s/issues/%s/comments" % (self.repo_uri, self.number))
+        data, status = utils.github_request(url, "get")        
+        
+        if not status:
+            self.message = data
+            return
+        
+        for comment in data:
+            c =  {
+                "user": comment["user"]["login"],
+                "body": comment["body"].splitlines(),
+                "time": comment["updated_at"],
+                "id": comment["id"]
+            }
+            self.comments[c["id"]] = c
 

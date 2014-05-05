@@ -29,7 +29,7 @@ class Issue:
         self.repo_uri = repo_uri
         self.number = number
         self.issue_uri = "repos/%s/issues/%s" % (self.repo_uri, self.number) 
-        self.comments = comment_list.CommentList(self.repo_uri, self.number) 
+        self.comments = comment_list.CommentList(self.number, self.repo_uri,) 
         self._get_data()
 
     @classmethod
@@ -64,8 +64,7 @@ class Issue:
         i.position = vim.current.window.cursor
         i.parse() # parse the buffer
         i.save() # push to the server
-        i.draw() # update the screen
-        i.map_buffer()
+        i.post_hook()
 
     @classmethod
     def show_issue(cls, number = "new", repo_uri = None):
@@ -74,8 +73,7 @@ class Issue:
             repo_uri = git.get_uri()
 
         i = cls.get_issue(number, repo_uri)
-        i.draw()
-        i.map_buffer()
+        i.post_hook()
     
     @classmethod
     def toggle_state(cls, state = None):
@@ -85,8 +83,7 @@ class Issue:
         i.parse()
         i.change_state()
         i.save()
-        i.draw()
-        i.map_buffer()
+        i.post_hook()
 
     def change_state(self):
 
@@ -113,12 +110,20 @@ class Issue:
                     else:
                         self.data[label] = value
             # handle error
-            elif re.search(r"^## Comment: ", line):
+            elif re.search(r"^## Comments Issue #%s" % self.number, line):
                 # pass the comments to the other section
-                self.comments.parse(vim.current.buffer[index:-1])
+                self.comments.parse(vim.current.buffer[index+1:-1])
             else: 
                 self.data["body"] += line
 
+    def post_hook(self):
+
+        self.draw()
+        self.map_buffer()
+        if hasattr(self, "position"):
+            vim.command(str(self.position[0]))
+            #vim.command("|%s" % str(self.position[1]))
+    
     def map_buffer(self):
         # autocommand to call on post save ...
         vim.command("map <buffer> s :python issue.Issue.save_issue()<cr>")
@@ -156,10 +161,6 @@ class Issue:
 
         # remove leading line
         vim.command("1delete _")
-        
-        if hasattr(self, "position"):
-            vim.command(str(self.position[0]))
-            vim.command("|%s" % str(self.position[1]))
 
     def save(self):
 
@@ -224,5 +225,4 @@ class Issue:
         url = utils.github_url(self.issue_uri)
         data = utils.clean_data(copy.deepcopy(self.data), ["number", "user"])
         data, status = utils.github_request(url, "patch", data)
-
 
