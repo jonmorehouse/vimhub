@@ -27,7 +27,7 @@ class TestIssueList(unittest.TestCase):
 
     def test_show_issue_list(self):
 
-        args = "all label=feature assignee=jonmorehouse,bigpepe"
+        args = "all label=bug,enhancement"
         obj = IL.show_issue_list(args)
 
 

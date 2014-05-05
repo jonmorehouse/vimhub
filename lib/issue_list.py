@@ -32,8 +32,21 @@ class IssueList():
     @classmethod
     def show_issue_list(cls, args):
 
-        pieces = re.findall(r"[\w'=]+", args)
-        pieces = re.split(r"[=]+", pieces[1])
+        kwargs = {"state": "open"}
+        # break up the pieces and then fill kwargs
+        pieces = re.findall(r"[\w'=,]+", args)
+        for piece in pieces: 
+            # if no equal sign - assign to state
+            if not "=" in piece:
+                if piece in ("open", "closed", "state"):
+                    kwargs["state"] = piece
+                continue
+            # user passed in custom params for github query
+            p = tuple(re.split(r"[=]+", piece))
+            kwargs[p[0]] = p[1]
+
+        url = utils.github_url("repos/jonmorehouse/issues/issues", kwargs)
+        
 
     @classmethod
     def open(line):
