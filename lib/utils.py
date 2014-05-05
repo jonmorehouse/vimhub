@@ -3,6 +3,7 @@ import config
 import urllib
 import urllib2
 import re
+import sys
 import json
 import time
 
@@ -17,7 +18,6 @@ url_hash = {}
 def time_ago(tstring):
 
     pass
-
 
 def trim_lines(li):
 
@@ -76,7 +76,10 @@ def git_path(path = os.getcwd()):
     # check hash
     if not path_hash.has_key(path):
         command = "cd %s && git rev-parse --show-toplevel" % path
-        path_hash[path] = os.popen(command).read().strip()
+        try:
+            path_hash[path] = os.popen(command).read().strip()
+        except:
+            sys.exit(1)
     return path_hash[path]
         
 

@@ -30,13 +30,14 @@ def get_remotes(path):
 def get_remote(path, upstream_preferred = False):
 
     path = utils.git_path(path)
+    print path
 
     # generate remote hash if not already present
     if not remote_hash.has_key(path):
         remote_hash[path] = get_remotes(path)
 
     # grab from the remote hash 
-    def _getRemoteFromHash(remotes, preferred, unpreferred):
+    def _get_remote_from_hash(remotes, preferred, unpreferred):
         k = remotes.keys()[:]
         if preferred in k:
             return remotes[preferred]
@@ -49,12 +50,15 @@ def get_remote(path, upstream_preferred = False):
         return remotes[k[0]]
 
     # now return the correct 
-    remote = _getRemoteFromHash(remote_hash[path], "origin", "upstream")
+    remote = _get_remote_from_hash(remote_hash[path], "origin", "upstream")
     if upstream_preferred:
-        remote = _getRemoteFromHash(remote_hash[path], "upstream", "origin")
+        remote = _get_remote_from_hash(remote_hash[path], "upstream", "origin")
     return remote
 
-def get_uri(path = os.getcwd(), upstream_preferred = config.upstream_issues):
+def get_uri(path = None, upstream_preferred = config.upstream_issues):
+
+    if not path:
+        path = os.getcwd()
 
     git_path = utils.git_path(path)
     remote = get_remote(git_path, upstream_preferred)
