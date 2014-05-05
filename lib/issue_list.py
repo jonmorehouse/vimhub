@@ -68,14 +68,24 @@ class IssueList():
     def draw(self):
     
         if not vim: return
-        b = utils.get_buffer(self.buffer_name)
         
+        # get current buffer!
+        b = utils.get_buffer(self.buffer_name)
+
         # append title
         b.append("## %s" % self.uri)
         for i in self.issues:
             b.append("%s \"%s @%s\" %s " % (i[0], i[1], i[2], i[3]))
 
         vim.command("1delete _")
+
+        labels = []
+        labels.append({ 'name': 'closed', 'color': 'ff0000'})
+        labels.append({ 'name': 'open', 'color': '00aa00'})
+
+        for label in labels:
+            vim.command("hi issueColor" + label["color"] + " guifg=#fff guibg=#" + label["color"])
+            vim.command("let m = matchadd(\"issueColor" + label["color"] + "\", \"" + label["name"] + "\")")
 
     def register_mappings(self):
         
