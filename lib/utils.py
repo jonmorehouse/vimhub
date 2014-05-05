@@ -14,6 +14,13 @@ except ImportError:
 path_hash = {}
 url_hash = {}
 
+def trim_lines(li):
+
+    li = "\n".join(li)
+    for i in range(li.count("\n")):
+        li = li.strip()
+    return li
+        
 def set_labels():
 
     vim.command("set filetype=markdown")

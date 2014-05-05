@@ -29,7 +29,7 @@ class Issue:
         self.repo_uri = repo_uri
         self.number = number
         self.issue_uri = "repos/%s/issues/%s" % (self.repo_uri, self.number) 
-        self.comments = comment_list.CommentList(self.number, self.repo_uri,) 
+        self.comments = comment_list.CommentList(self.number, self.repo_uri) 
         self._get_data()
 
     @classmethod
@@ -63,7 +63,6 @@ class Issue:
         i = cls.get_current_issue()
         i.position = vim.current.window.cursor
         i.parse() # parse the buffer
-        i.comments.update() # update comments
         i.save() # push to the server
         i.post_hook()
 
@@ -96,7 +95,7 @@ class Issue:
     
     def parse(self):
         # reset body
-        self.data["body"] = ""
+        self.data["body"] = []
 
         # this is messy - convert to a matchgroup in the future
         for index, line in enumerate(vim.current.buffer[1:]):
@@ -106,7 +105,7 @@ class Issue:
                 value = mg.group("value")
                 label = mg.group("label").lower()
                 if label in self.defaults.keys():
-                    if self.data[label] == list:
+                    if type(self.defaults[label]) == list:
                         self.data[label] = value.split(",")
                     else:
                         self.data[label] = value
@@ -114,8 +113,11 @@ class Issue:
             elif re.search(r"^## Comments Issue #%s" % self.number, line):
                 # pass the comments to the other section
                 self.comments.parse(vim.current.buffer[index+1:-1])
+                break
             else: 
-                self.data["body"] += line
+                self.data["body"].append(line.strip())
+
+        self.data["body"] = utils.trim_lines(self.data["body"])
 
     def post_hook(self):
 
@@ -154,8 +156,8 @@ class Issue:
 
         # print out body if applicable
         if self.data.has_key("body"):
-            b.append("")
-            b.append(self.data["body"])
+            for line in self.data["body"].splitlines():
+                b.append(line)
         
         # now we need to print the comments
         self.comments.draw(b)
