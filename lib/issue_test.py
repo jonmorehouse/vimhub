@@ -8,16 +8,13 @@ class TestIssue(unittest.TestCase):
 
         pass
 
-
     def test_new_issue(self):
         
-        i = I.show_issue(config.repo_uri)
+        i = I.get_issue("new", config.repo_uri)
         
     def test_show_issue(self):
 
-        i = I.show_issue(1, config.repo_uri)
-        
-
+        i = I.get_issue(1, config.repo_uri)
 
 if __name__ == "__main__":
     unittest.main()
