@@ -1,20 +1,29 @@
 import config
 import utils
-import vim
 import time
 import re
 import user
 
-class CommentList:
+try:
+    import vim
+except ImportError as e:
+    vim = False
+
+class CommentList(object):
 
     def __init__(self, number, repo_uri):
 
         self.login = user.get_login()
         self.message = ""
+        self.editable_comments = {}
         self.comments = {}
         self.user_comments = [] # list of ids that will get updated each time
         self.repo_uri = repo_uri
         self.number = number
+
+    def update(self):
+
+        self.comments = {}
         self._get_comments()
 
     # pass in a buffer
@@ -35,10 +44,6 @@ class CommentList:
         b.append("")
         b.append("")
 
-    def save(self):
-
-        pass
-
     def parse(self, lines):
 
         comment = {"body": []}
@@ -46,7 +51,6 @@ class CommentList:
             # skip any empty lines
             if re.search(r"^\s*$", line):
                 continue
-
             cmg = re.match(r"## @(?P<login>[^ at]+) (?P<date>.*) (?P<id>.*)", line)
             if cmg: #start parsing a group
                 self._process_comment(comment)
@@ -59,44 +63,51 @@ class CommentList:
 
         self._process_comment(comment)
 
+    @property
+    def number(self):
+        return self._number
+
+    @number.setter # issue number
+    def number(self, new_number):
+        
+        self._number = new_number
+        self.uri = "repos/%s/issues/%s/comments" % (self.repo_uri, self._number)
 
     def _process_comment(self, comment):
 
-        if not comment.has_key("login") or comment.has_key("id") or not comment["login"] == self.login:
-            print "BAD"
+        if not comment.has_key("login") and not comment.has_key("id") or not comment["login"] == self.login or not comment.has_key("body"):
             return
 
         # create a new comment
-        if comment["id"] == "new" and len(comment.body) > 0:
-            self._create_comment("\n".join(comment["body"]))
+        if comment["id"] == "new": 
+            if len(comment["body"]) > 0:
+                self._create_comment("\n".join(comment["body"]))
+                return
+            else:
+                return
+
+        if comment.has_key("id") and len(comment["body"]) == 0: 
+            self._delete_comment(self.comments[comment["id"]]["url"])
             return
-        
-        # this is an existing personal comment
-        if len(comment.body) == 0:
-            self._delete_comment(comment["id"])
-            return
 
-        # now compare to the existing comment
-        if comment_hash.has_key(comment["id"]):
-            for old_line, new_line in zip(comment_hash[comment["id"]]["body"], comment["body"]):
-                # line difference
-                if not old_line.strip().lower() == new_line.strip().lower():
-                    self._edit_comment(comment["id"], comment["body"])
+        # get comparison working so issues don't make requests as well
+        if comment["id"] in self.editable_comments:
+            self._edit_comment(self.comments["id"]["url"], "\n".join(comment["body"]))
 
-    def _edit_comment(self, cid, body):
+    def _edit_comment(self, url, body):
 
-        print "edit"
-        pass
+        data, status = utils.github_request(url, "patch", {"body": body})
 
-    def _delete_comment(self, cid):
+    def _delete_comment(self, url):
 
-        print "delete"
-        pass
-   
-    def _create_comment(self, comment_body):
+        url = utils.github_url(url)
+        data, status = utils.github_request(url, "delete")
 
-        print "create"
-        pass
+    def _create_comment(self, body):
+
+        url = utils.github_url(self.uri)
+        data, status = utils.github_request(url, "post", {"body": body})
+        self.comments[data["id"]] = data
     
     def _get_comments(self):
 
@@ -104,7 +115,7 @@ class CommentList:
             return
 
         # make the request as needed
-        url = utils.github_url("repos/%s/issues/%s/comments" % (self.repo_uri, self.number))
+        url = utils.github_url(self.uri)
         data, status = utils.github_request(url, "get")        
         
         if not status:
@@ -116,7 +127,8 @@ class CommentList:
                 "user": comment["user"]["login"],
                 "body": comment["body"].splitlines(),
                 "time": comment["updated_at"],
-                "id": comment["id"]
+                "id": str(comment["id"]),
+                "url": comment["url"]
             }
             self.comments[c["id"]] = c
 

@@ -63,6 +63,7 @@ class Issue:
         i = cls.get_current_issue()
         i.position = vim.current.window.cursor
         i.parse() # parse the buffer
+        i.comments.update() # update comments
         i.save() # push to the server
         i.post_hook()
 
@@ -168,7 +169,6 @@ class Issue:
             self._create_issue()
         else: 
            self._save_issue() 
-        self.comments.save()
 
     def _get_data(self):
 

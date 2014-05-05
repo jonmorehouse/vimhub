@@ -67,11 +67,15 @@ def git_path(path = os.getcwd()):
         path_hash[path] = os.popen(command).read().strip()
     return path_hash[path]
         
+
 def github_url(endpoint, params = {}): 
 
-    path = os.path.join(config.api_url, endpoint)
-    if not params.has_key("access_token"):
-        params["access_token"] = config.access_token
+    if not endpoint.startswith("http"):
+        path = os.path.join(config.api_url, endpoint)
+        if not params.has_key("access_token"):
+            params["access_token"] = config.access_token
+    else: # url was passed in
+        path = endpoint
     # generate path by combining params with the base url
     path += "?%s" % urllib.urlencode(params)
     return path
@@ -90,13 +94,15 @@ def github_request(url, method = "get", data = False, limit = config.max_api_pag
     try: 
         request.get_method = lambda: method.upper()
         res = urllib2.urlopen(request)
+        status = True
         res_data = json.loads(res.read()) 
         res_headers = res.info()
-        status = True
     except urllib2.URLError as e:
         res = e
     except urllib2.HTTPError as e:
         res = e
+    except ValueError as e:
+        return res, status
     except any as e:
         res = e
     if not status:
