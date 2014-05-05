@@ -9,7 +9,8 @@ try:
 except ImportError as e:
     vim = False
 
-issue_list_hash = {} # hash objects per list ...
+issue_list_hash = {} # hash objects by path
+issue_list_uri_hash = {} # hash objects by uri
 
 class IssueList():
 
@@ -26,6 +27,7 @@ class IssueList():
         if self.error_message:
             return
         self._generate_issue_list()
+        issue_list_uri_hash[self.uri] = self
 
     @classmethod
     def get_issue_list(cls, cached = True, path = utils.git_path(), **kwargs):
@@ -35,12 +37,6 @@ class IssueList():
             issue_list_hash[path] = cls(path, **kwargs)
         return issue_list_hash[path]
     
-    @classmethod
-    def update_issue_list(cls, args):
-
-        # update the issue list! -- should update the current buffer
-        pass
-
     @classmethod
     def show_issue_list(cls, args = None):
 
@@ -64,6 +60,18 @@ class IssueList():
         issue.draw() # draw the buffer
         issue.register_mappings() # register vim_mappings
         
+    @classmethod
+    def issue_list_selection(cls, args = True):
+
+        # parse buffer and get uri
+        uri = re.split(r"/issues$", vim.current.buffer.name)[0]
+        # get issue_list uri
+        issue_list = issue_list_uri_hash[uri]
+        # parse current line to get issue number
+        issue_number = re.findall(r"[\w']+", vim.current.line)[0]
+        # open the issue
+        issue.Issue.show(issue_number)
+
     # public methods (vim specific)
     def draw(self):
     
@@ -79,19 +87,10 @@ class IssueList():
 
         vim.command("1delete _")
 
-        labels = []
-        labels.append({ 'name': 'closed', 'color': 'ff0000'})
-        labels.append({ 'name': 'open', 'color': '00aa00'})
-
-        for label in labels:
-            vim.command("hi issueColor" + label["color"] + " guifg=#fff guibg=#" + label["color"])
-            vim.command("let m = matchadd(\"issueColor" + label["color"] + "\", \"" + label["name"] + "\")")
-
     def register_mappings(self):
         
         if not vim: return
-
-
+        vim.command("map <buffer> <cr> :normal! 0<cr>:python issue_list.IssueList.issue_list_selection()<cr>")
 
     # private methods (non vim)
     def _get_issues(self, **kwargs):
