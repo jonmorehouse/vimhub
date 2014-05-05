@@ -13,8 +13,6 @@ import re
 import sys
 import os
 
-sys.path.append(os.path.expandvars("$HOME/Documents/programs/github-issues.vim/lib"))
-
 import name
 name.test()
 

@@ -14,6 +14,11 @@ except ImportError:
 path_hash = {}
 url_hash = {}
 
+def time_ago(tstring):
+
+    pass
+
+
 def trim_lines(li):
 
     li = "\n".join(li)
@@ -97,7 +102,6 @@ def github_request(url, method = "get", data = False, limit = config.max_api_pag
     request = urllib2.Request(url)
     if data:
        request = urllib2.Request(url, json.dumps(data))
-
     try: 
         request.get_method = lambda: method.upper()
         res = urllib2.urlopen(request)
@@ -136,5 +140,4 @@ def github_request(url, method = "get", data = False, limit = config.max_api_pag
         return next_data, status
     # successfully return everything
     return res_data + next_data, status
-
 

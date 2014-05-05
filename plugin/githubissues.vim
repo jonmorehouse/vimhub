@@ -21,120 +21,24 @@ if !has("python")
   finish
 endif
 
-function! s:showGithubIssues(...) 
-  call ghissues#init()
+python <<EOF
+import os
+import sys
+sys.path.append(os.path.expandvars("$HOME/Documents/programs/github-issues.vim/lib"))
+import lib as l
+EOF
 
-  if a:0 < 1
-    python showIssueList(0, "True")
-  else
-    python showIssueList(vim.eval("a:1"), "True")
-  endif
-  
-  " its not a real file
-  set buftype=nofile
+" build out mappings / shortcuts as needed
+" show issue
+command
 
-  " map the enter key to copy the line, close the window, and paste it
-  nnoremap <buffer> <cr> :normal! 0<cr>:call <SID>showIssue(expand("<cword>"))<cr>
-  nnoremap <buffer> i :Giadd<cr>
-  nnoremap <buffer> q :q<cr>
+" create issue
+command Gissues :python l.issue_list.IssueList()
 
-endfunction
 
-function! s:showIssue(id)
-  call ghissues#init()
 
-  python showIssueBuffer(vim.eval("a:id"))
 
-  call s:setupOmni()
 
-  if a:id == "new"
-    normal 0ll
-    startinsert
-  endif
-
-  setlocal nomodified
-endfunction
-
-function! s:setIssueState(state)
-  python setIssueData({ 'state': 'open' if vim.eval("a:state") == '1' else 'closed' })
-endfunction
-
-function! s:updateIssue()
-  call ghissues#init()
-  python showIssue()
-  silent execute 'doautocmd BufReadPost '.expand('%:p')
-endfunction
-
-function! s:saveIssue()
-  call ghissues#init()
-  python saveGissue()
-  silent execute 'doautocmd BufWritePost '.expand('%:p')
-endfunction
-
-" omnicomplete function, also used by neocomplete
-function! githubissues#CompleteIssues(findstart, base)
-  if a:findstart
-    " locate the start of the word
-    let line = getline('.')
-    let start = col('.') - 1
-    while start > 0 && line[start - 1] =~ '\w'
-      let start -= 1
-    endwhile
-    let b:compl_context = getline('.')[start : col('.')]
-    return start
-  else
-    let res = []
-    for m in b:omni_options
-      if m =~ '^' . b:compl_context
-        call add(res, m)
-      endif
-    endfor
-    return res
-  endif
-endfunction
-
-" set omnifunc for the buffer
-function! s:setupOmni()
-  call ghissues#init()
-
-  setlocal omnifunc=githubissues#CompleteIssues
-
-  " empty array will store the menu items
-  let b:omni_options = []
-
-  python populateOmniComplete()
-endfunction
-
-function! s:handleEnter()
-  if len(expand("<cword>")) == 40
-    echo expand("<cword>")
-    execute ":Gedit " . expand("<cword>")
-  endif
-endfunction
-
-" define the :Gissues command
-command! -nargs=* Gissues call s:showGithubIssues(<f-args>)
-command! -nargs=0 Giadd call s:showIssue("new")
-command! -nargs=* Giedit call s:showIssue(<f-args>)
-command! -nargs=0 Giupdate call s:updateIssue()
-
-autocmd BufReadCmd gissues/*/\([0-9]*\|new\) call s:updateIssue()
-autocmd BufReadCmd gissues/*/\([0-9]*\|new\) nnoremap <buffer> cc :call <SID>setIssueState(0)<cr>
-autocmd BufReadCmd gissues/*/\([0-9]*\|new\) nnoremap <buffer> co :call <SID>setIssueState(1)<cr>
-autocmd BufReadCmd gissues/*/\([0-9]*\|new\) nnoremap <buffer> <cr> :call <SID>handleEnter()<cr>
-autocmd BufWriteCmd gissues/*/[0-9a-z]* call s:saveIssue()
-
-if !exists("g:github_issues_no_omni")
-  " Neocomplete support
-  if !exists('g:neocomplete#sources#omni#input_patterns')
-    let g:neocomplete#sources#omni#input_patterns = {}
-  endif
-  let g:neocomplete#sources#omni#input_patterns.gitcommit = '\#\d*'
-  let g:neocomplete#sources#omni#input_patterns.gfimarkdown = '.'
-
-  " Install omnifunc on gitcommit files
-  autocmd FileType gitcommit call s:setupOmni()
-endif
 
 if !exists("g:github_access_token")
   let g:github_access_token = ""

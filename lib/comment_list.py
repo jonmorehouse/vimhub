@@ -3,6 +3,7 @@ import utils
 import time
 import re
 import user
+from collections import OrderedDict
 
 try:
     import vim
@@ -16,7 +17,7 @@ class CommentList(object):
         self.login = user.get_login()
         self.message = ""
         self.editable_comments = {}
-        self.comments = {}
+        self.comments = OrderedDict()
         self.user_comments = [] # list of ids that will get updated each time
         self.repo_uri = repo_uri
         self.number = number
@@ -32,7 +33,6 @@ class CommentList(object):
 
         b.append("")
         b.append("## Comments Issue #%s" % self.number)
-        b.append("")
         for _id, comment in self.comments.iteritems():
             b.append("## @%s at %s %s" % (comment["user"], comment["time"], comment["id"]))
             for line in comment["body"]:
@@ -113,6 +113,7 @@ class CommentList(object):
     
     def _cache_comment(self, comment):
 
+        print comment
         c =  {
             "user": comment["user"]["login"],
             "body": comment["body"].splitlines(),
@@ -128,7 +129,7 @@ class CommentList(object):
             return
 
         # make the request as needed
-        url = utils.github_url(self.uri)
+        url = utils.github_url(self.uri) 
         data, status = utils.github_request(url, "get")        
         
         if not status:
