@@ -13,12 +13,10 @@ class TestGit(unittest.TestCase):
 
     def test_get_remote(self):
 
-        repo_uri = git.get_remote(".")
-        repo_uri = git.get_remote(".")
+        remotes = git.get_remote(".")
 
     def test_get_uri(self):
 
-        repo_uri = git.get_uri(".")
         repo_uri = git.get_uri(".")
 
 if __name__ == "__main__":

@@ -2,6 +2,7 @@ import os
 import subprocess
 import re
 import utils
+import config
 
 remote_hash = {}
 
@@ -39,6 +40,8 @@ def get_remote(path, upstream_preferred = False):
         k = remotes.keys()[:]
         if preferred in k:
             return remotes[preferred]
+        elif len(k) == 1:
+            return remotes[k[0]]
         try:
             k.remove(unpreferred)
         except:     
@@ -51,7 +54,11 @@ def get_remote(path, upstream_preferred = False):
         remote = _getRemoteFromHash(remote_hash[path], "upstream", "origin")
     return remote
 
-def get_uri(path):
-    
+def get_uri(path = os.getcwd(), upstream_preferred = config.upstream_issues):
 
-    return 
+    git_path = utils.git_path(path)
+    remote = get_remote(git_path, upstream_preferred)
+    return "/".join(remote)
+
+
+
