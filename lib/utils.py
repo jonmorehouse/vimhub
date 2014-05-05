@@ -4,12 +4,41 @@ import urllib
 import urllib2
 import re
 import json
+import time
 
-if not config.debug:
+try:
     import vim
+except ImportError:
+    vim = False
 
 path_hash = {}
 url_hash = {}
+
+def get_buffer(buffer_name, delete = True): 
+
+    # first check if buffer is already open
+    if int(vim.eval("bufloaded(\"%s\")" % buffer_name)):
+        if delete:
+            vim.command("bdelete %s" % buffer_name)
+            #time.sleep(2)
+        else:
+            vim.command("b %s" % buffer_name)
+            return vim.current.buffer
+
+    # only create a new window if required
+    if not config.same_window:
+        vim.command("silent new")
+
+    # open buffer ...
+    vim.command("edit %s" % buffer_name)
+    # set it as no file - we're not directly saving any of these buffers to disk
+    vim.command("set buftype=nofile")
+    
+    # return buffer
+    return vim.current.buffer
+
+
+
 
 def error_handler(msg):
 

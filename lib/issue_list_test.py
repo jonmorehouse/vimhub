@@ -28,9 +28,7 @@ class TestIssueList(unittest.TestCase):
     def test_show_issue_list(self):
 
         args = "all label=bug,enhancement"
-        obj = IL.show_issue_list(args)
-
-
+        obj = IL.show_issue_list(args) # if in vim then we should also print the elements as needed!
 
 if __name__ == "__main__":
     unittest.main()
