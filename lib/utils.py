@@ -5,6 +5,9 @@ import urllib2
 import re
 import json
 
+if not config.debug:
+    import vim
+
 path_hash = {}
 url_hash = {}
 
@@ -13,8 +16,9 @@ def error_handler(msg):
     if config.debug:
         print msg
 
-def git_path(path):
+def git_path(path = os.getcwd()):
 
+    # check hash
     if not path_hash.has_key(path):
         command = "cd %s && git rev-parse --show-toplevel" % path
         path_hash[path] = os.popen(command).read().strip()
