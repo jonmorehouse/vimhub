@@ -63,6 +63,7 @@ class Issue:
         i.parse() # parse the buffer
         i.save() # push to the server
         i.draw() # update the screen
+        i.map_buffer() # map the buffer
 
     @classmethod
     def show_issue(cls, number = "new", repo_uri = None):
@@ -115,8 +116,10 @@ class Issue:
     def map_buffer(self):
         # autocommand to call on post save ...
         vim.command("map <buffer> s :python issue.Issue.save_issue()<cr>")
+        # toggle the state of the current issue
         vim.command("map <buffer> c :python issue.Issue.toggle_state()<cr>")
-        vim.command("map <buffer> o :python issue.Issue.open_issue()<cr>")
+        # hit enter to browse the current url
+        vim.command("map <buffer> <cr> :normal! 0<cr>:python issue.Issue.open_issue()<cr>")
 
     def draw(self):
     
@@ -196,12 +199,18 @@ class Issue:
         if not status:
             self.error_message = data
             return 
-        self.number = data["number"]
+
+        # update attributes as needed for object
+        self.number = str(data["number"])
         self.data["user"] = data["user"]["login"]
-        self.data["number"] = self.number
         self.url = data["html_url"]
+        self.issue_uri = "repos/%s/issues/%s" % (self.repo_uri, self.number)
+        self.comments.number = self.number
+        issue_hash["%s/%s" % (self.repo_uri, self.number)] = self
+
         # now delete the current vim buffer
         vim.command("bdelete")
+
 
     def _save_issue(self):
 
