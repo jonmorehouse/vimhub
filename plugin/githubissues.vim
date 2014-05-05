@@ -8,12 +8,15 @@
 "              Released under the MIT license
 "        ======================================================================
 
+
 " do not load twice
 if exists("g:github_issues_loaded") || &cp
   finish
 endif
-
 let g:github_issues_loaded = 1
+
+" source all configuration
+execute "source config.vim"
 
 " do not continue if Vim is not compiled with Python2.7 support
 if !has("python")
@@ -24,44 +27,14 @@ endif
 python <<EOF
 import os
 import sys
-sys.path.append(os.path.expandvars("$HOME/Documents/programs/github-issues.vim/lib"))
-import lib as l
+sys.path.append(os.path.expandvars("$HOME/Documents/programs/github-issues.vim"))
+from lib.issue_list import IssueList 
+from lib.issue import Issue
 EOF
 
-" build out mappings / shortcuts as needed
-" show issue
-command
+" create issue list
+command Gissues :python IssueList.show_issue_list()
+" create a new issue
+"command Giadd :python Issue()
 
-" create issue
-command Gissues :python l.issue_list.IssueList()
-
-
-
-
-
-
-if !exists("g:github_access_token")
-  let g:github_access_token = ""
-endif
-
-if !exists("g:github_upstream_issues")
-  let g:github_upstream_issues = 0
-endif
-
-if !exists("g:github_issues_urls")
-  let g:github_issues_urls = ["github.com:", "https://github.com/"]
-endif
-
-if !exists("g:github_api_url")
-  let g:github_api_url = "https://api.github.com/"
-endif
-
-if !exists("g:github_issues_max_pages")
-  let g:github_issues_max_pages = 1
-endif
-
-" force issues and what not to stay in the same window
-if !exists("g:github_same_window")
-  let g:github_same_window = 0
-endif
 

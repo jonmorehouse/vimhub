@@ -10,8 +10,7 @@ if vim:
     api_url = vim.eval("g:github_api_url")
     access_token = vim.eval("g:github_access_token")
     upstream_issues = vim.eval("g:github_upstream_issues")
-    max_api_pages = 1000#vim.eval("g:github_max_api_pages")
-    #debug = vim.eval("g:github_debug")
+    max_api_pages = vim.eval("g:github_max_api_pages")
     same_window = vim.eval("g:github_same_window")
 
 else: # test environment

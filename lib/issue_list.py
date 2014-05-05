@@ -71,7 +71,7 @@ class IssueList():
         # parse current line to get issue number
         issue_number = re.findall(r"[\w']+", vim.current.line)[0]
         # open the issue
-        issue.Issue.show(issue_number)
+        issue.Issue.show_issue(issue_number)
 
     def draw(self):
     
@@ -98,12 +98,12 @@ class IssueList():
             return
 
         # enter into a new issue
-        vim.command("map <buffer> <cr> :normal! 0<cr>:python issue_list.IssueList.issue_list_selection()<cr>")
+        vim.command("map <buffer> <cr> :normal! 0<cr>:python IssueList.issue_list_selection()<cr>")
         # refresh issues lists
-        vim.command("map <buffer> s :python issue_list.IssueList.show_issue_list()<cr>")
+        vim.command("map <buffer> s :python IssueList.show_issue_list()<cr>")
         # create a new issue
-        vim.command("map <buffer> i :python issue_list.IssueList.test()<cr>")
-        vim.command("map <buffer> a :python issue_list.IssueList.test()<cr>")
+        vim.command("map <buffer> i :python Issue.open_issue()<cr>")
+        vim.command("map <buffer> a :python IssueList.open_issue()<cr>")
 
     # private methods (non vim)
     def _get_issues(self, **kwargs):
@@ -137,10 +137,4 @@ class IssueList():
         for ih in self.data: # ih = issue_hash
             issue = (ih["number"], ih["title"], ih["user"]["login"], ih["state"], ih["url"])
             self.issues.append(issue) 
-
-
-
-        
-
-
 
