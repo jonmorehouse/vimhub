@@ -41,6 +41,18 @@ def get_buffer(buffer_name, delete = True):
     set_labels()
     return vim.current.buffer
 
+def clean_data(data, banned_keys = []):
+
+    for key, value in data.iteritems():
+        if not value or value == [] or value == "" :
+            banned_keys.append(key)
+    for key in banned_keys:
+        if data.has_key(key):
+            del data[key]
+    
+    if len(data.keys()) == 0:
+        return False
+    return data
 
 def error_handler(msg):
 
@@ -64,17 +76,18 @@ def github_url(endpoint, params = {}):
     path += "?%s" % urllib.urlencode(params)
     return path
 
-def github_request(url, method = "get", data = None, limit = config.max_api_pages):
+def github_request(url, method = "get", data = False, limit = config.max_api_pages):
 
-    global url_hash
-
+    status = False
     # check the hash
     if method == "get" and url_hash.has_key(url):
         return url_hash[url], True
 
-    status = False
+    request = urllib2.Request(url)
+    if data:
+       request = urllib2.Request(url, json.dumps(data))
+
     try: 
-        request = urllib2.Request(url)
         request.get_method = lambda: method.upper()
         res = urllib2.urlopen(request)
         res_data = json.loads(res.read()) 

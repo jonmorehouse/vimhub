@@ -33,6 +33,26 @@ class TestUtils(unittest.TestCase):
         self.assertTrue(data)
         self.assertTrue(status)
 
+    def test_github_post_request(self):
+
+        defaults = {
+            "title": "Title",
+        }
+        url = utils.github_url("repos/jonmorehouse/issues/issues", self.params)
+        data, status = utils.github_request(url, "post", defaults) 
+
+    def test_clean_data(self):
+
+        data = {
+            "key1": "",
+            "key2": [],
+            "no_key": "a",
+            "key": "B"
+        }
+        _data = utils.clean_data(data, ["no_key"])
+        print _data
+
+
 if __name__ == "__main__":
     unittest.main()
 
