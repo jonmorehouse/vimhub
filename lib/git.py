@@ -61,4 +61,3 @@ def get_uri(path = os.getcwd(), upstream_preferred = config.upstream_issues):
     return "/".join(remote)
 
 
-

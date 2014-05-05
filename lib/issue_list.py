@@ -3,6 +3,7 @@ import config
 import git
 import re
 import imp
+import issue
 import __builtin__
 try:
     import vim
@@ -72,25 +73,30 @@ class IssueList():
         # open the issue
         issue.Issue.show(issue_number)
 
-    # public methods (vim specific)
     def draw(self):
     
         if not vim: return
-        
+
         # get current buffer!
         b = utils.get_buffer(self.buffer_name)
-
         # append title
         b.append("## %s" % self.uri)
+        b.append("")
         for i in self.issues:
             b.append("%s \"%s @%s\" %s " % (i[0], i[1], i[2], i[3]))
-
+        # delete first line
         vim.command("1delete _")
 
     def register_mappings(self):
         
         if not vim: return
+        # enter into a new issue
         vim.command("map <buffer> <cr> :normal! 0<cr>:python issue_list.IssueList.issue_list_selection()<cr>")
+        # refresh issues lists
+        vim.command("map <buffer> s :python issue_list.IssueList.show_issue_list()<cr>")
+        # create a new issue
+        vim.command("map <buffer> i :python issue_list.IssueList.test()<cr>")
+        vim.command("map <buffer> a :python issue_list.IssueList.test()<cr>")
 
     # private methods (non vim)
     def _get_issues(self, **kwargs):
