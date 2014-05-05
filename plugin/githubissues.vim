@@ -15,12 +15,9 @@ if exists("g:github_issues_loaded") || &cp
 endif
 let g:github_issues_loaded = 1
 
-" source all configuration
-execute "source config.vim"
-
 " do not continue if Vim is not compiled with Python2.7 support
 if !has("python")
-  echo "github-issues.vim requires Python support, sorry :c"
+  echo "github-issues.vim requires Python support."
   finish
 endif
 
@@ -34,7 +31,8 @@ EOF
 
 " create issue list
 command Gissues :python IssueList.show_issue_list()
+
 " create a new issue
-"command Giadd :python Issue()
+command Gissue :python Issue.show_issue()
 
 

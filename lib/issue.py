@@ -39,6 +39,9 @@ class Issue:
             repo_uri = git.get_uri()
         key = "%s/%s" % (repo_uri, str(number))
 
+        print key
+        print repo_uri
+
         if not issue_hash.has_key(key):
             issue_hash[key] = cls(number, repo_uri)
 
@@ -129,11 +132,11 @@ class Issue:
     
     def map_buffer(self):
         # autocommand to call on post save ...
-        vim.command("map <buffer> s :python issue.Issue.save_issue()<cr>")
+        vim.command("map <buffer> s :python Issue.save_issue()<cr>")
         # toggle the state of the current issue
-        vim.command("map <buffer> c :python issue.Issue.toggle_state()<cr>")
+        vim.command("map <buffer> c :python Issue.toggle_state()<cr>")
         # hit enter to browse the current url
-        vim.command("map <buffer> <cr> :normal! 0<cr>:python issue.Issue.open_issue()<cr>")
+        vim.command("map <buffer> <cr> :normal! 0<cr>:python Issue.open_issue()<cr>")
 
     def draw(self):
     
