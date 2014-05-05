@@ -75,10 +75,15 @@ class IssueList():
 
     def draw(self):
     
-        if not vim: return
+        if not vim: 
+            return
 
         # get current buffer!
         b = utils.get_buffer(self.buffer_name)
+        if self.error_message: # handle fatal error
+            b.append(self.error_message)
+            return 
+
         # append title
         b.append("## %s" % self.uri)
         b.append("")
@@ -89,7 +94,9 @@ class IssueList():
 
     def register_mappings(self):
         
-        if not vim: return
+        if not vim: 
+            return
+
         # enter into a new issue
         vim.command("map <buffer> <cr> :normal! 0<cr>:python issue_list.IssueList.issue_list_selection()<cr>")
         # refresh issues lists

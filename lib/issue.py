@@ -11,23 +11,34 @@ except ImportError as e:
 issue_hash = {} # hash individual issues
 
 class Issue:
-
     def __init__(uri, number = "new"):
 
+        if number == "new":
+            self._new()
+        else:
+            self._get_issue()
+
+    @classmethod
+    def save_issue(cls):
+        
         pass
 
     @classmethod
-    def save_issue():
+    def show_issue(cls, number = "new", uri = git.get_uri()):
 
         pass
 
-    @classmethod
-    def show_issue(number = "new", uri = git.get_uri()):
-        print uri
-        # download 
+    def _get_issue(number):
 
-    def draw():
-        if not vim: return
+        pass
+
+
+
+
+
+
+
+
 
 
 

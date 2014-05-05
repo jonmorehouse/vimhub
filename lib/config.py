@@ -19,7 +19,8 @@ else: # test environment
     api_url = "https://api.github.com"
     upstream_issues = True
     # test repository for all local testing
-    test_repo_path = os.path.expandvars("$HOME/Desktop/issue-test")
+    repo_path = os.path.expandvars("$HOME/Desktop/issue-test")
+    repo_uri = "jonmorehouse/issues"
     max_api_pages = 1000
     debug = True
     same_window = False

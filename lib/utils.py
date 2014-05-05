@@ -25,7 +25,6 @@ def get_buffer(buffer_name, delete = True):
     if int(vim.eval("bufloaded(\"%s\")" % buffer_name)):
         if delete:
             vim.command("bdelete %s" % buffer_name)
-            #time.sleep(2)
         else:
             vim.command("b %s" % buffer_name)
             return vim.current.buffer
