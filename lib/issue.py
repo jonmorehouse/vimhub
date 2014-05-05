@@ -48,7 +48,7 @@ class Issue:
     @classmethod
     def save_issue(cls):
         
-        pass
+        print "SAVE"
 
     @classmethod
     def show_issue(cls, number = "new", repo_uri = "test"):
@@ -59,6 +59,10 @@ class Issue:
     def update_from_string(content):
 
         # loop through string and update the internal hash
+        pass
+
+    def map_buffer(self):
+
         pass
 
     def draw(self):
@@ -96,11 +100,6 @@ class Issue:
         # remove leading line
         vim.command("1delete _")
 
-    def buffer_commands():
-
-        # buffer mappings
-        pass
-
     def _get_issue_data(self):
 
         self.data = copy.deepcopy(self.defaults)
@@ -116,8 +115,8 @@ class Issue:
     
     def _get_comments(self):
 
-        if self.data.has_key("comments") and self.data["comments"] > 0:
-            print "HERE"
+        if self.data.has_key("comments") and self.data["comments"] > 0: 
+            self.comments = comment_list.CommentList(self.repo_uri, self.number)
     
     def _create_issue(self):
 

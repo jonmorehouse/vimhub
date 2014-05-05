@@ -59,7 +59,7 @@ class IssueList():
         issue = cls.get_issue_list(False, **kwargs)
         issue.buffer_name = "%s/issues" % issue.uri
         issue.draw() # draw the buffer
-        issue.register_mappings() # register vim_mappings
+        issue.map_buffer() # register vim_mappings
         
     @classmethod
     def issue_list_selection(cls, args = True):
@@ -92,7 +92,7 @@ class IssueList():
         # delete first line
         vim.command("1delete _")
 
-    def register_mappings(self):
+    def map_buffer(self):
         
         if not vim: 
             return
