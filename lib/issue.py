@@ -18,7 +18,7 @@ class Issue:
 
     defaults = {
         "title": "",
-        "assignee": "",
+        "assignee": utils.github.user()["login"],
         "state": "open",
         "labels": [],
         "body": "",
@@ -196,7 +196,7 @@ class Issue:
         if not self.number == "new":
             data, status = github.request(github.url(self.issue_uri))
             if not status:
-                self.message = data
+                utils.log(data)
                 return
 
             # issue was successfully requested
@@ -216,13 +216,13 @@ class Issue:
         # create issue on the server
         uri = "repos/%s/issues" % self.repo
         url = github.url(uri)
-        data = utils.clean_data(copy.deepcopy(self.data), ["state"])
+        data = utils.clean_data(copy.deepcopy(self.data), ["state", "labels"])
         if not data:
-            self.message = "Issue not ready yet..."
+            utils.log("New issues require title/body")
             return
         data, status = github.request(url, "post", data)
         if not status:
-            self.message = data
+            utils.log(data)
             return 
 
         # update attributes as needed for object
@@ -242,13 +242,8 @@ class Issue:
 
         # get ready for the patch operation
         url = github.url(self.issue_uri)
-        print url
-        data = utils.clean_data(copy.deepcopy(self.data), ["number", "user"])
-        print data
+        data = utils.clean_data(copy.deepcopy(self.data), ["number", "user", "labels"])
         data, status = github.request(url, "patch", data)
-        print data
-        print status
-
-
+        utils.log(data)
 
 

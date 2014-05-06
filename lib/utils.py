@@ -84,16 +84,25 @@ def get_buffer(buffer_name, delete = True):
     vim.command("set buftype=nofile")
     return vim.current.buffer
 
+
+def log(msg, error = False):
+
+    vim.command("echom \"%s\"" % msg)
+
 def clean_data(data, banned_keys = []):
 
-    for key, value in data.iteritems():
-        if not value or value == [] or value == "" or str(value).lower() == "none":
-            banned_keys.append(key)
-    for key in banned_keys:
-        if data.has_key(key):
+    for key in data.keys():
+        value = data.get(key)
+        if not value:
             del data[key]
-    
+        if type(value) == str and value.lower() == "none" or value == " ":
+            del data[key]
+        # keep lists by default
+        if type(value) == list:
+            data[key] = filter(lambda a: a not in (None, "", False, " "), value)
+
     if len(data.keys()) == 0:
         return False
+
     return data
 
