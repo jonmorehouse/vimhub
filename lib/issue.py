@@ -36,6 +36,9 @@ class Issue:
     def open(cls, *args):
 
         i = cls._issue_from_args(*args)
+        if not i or not i.repo:
+            print "Not a valid repository or issue. Please try again or consult help pages"
+            return
         i.post_hook()
 
     @classmethod
@@ -47,30 +50,34 @@ class Issue:
         i.map_buffer()
 
     @classmethod
-    def save(cls, *args):
+    def save(cls):
         
-        i = cls._issue_from_args(*args)
-        print i
-        return
+        i = cls._issue_from_buffer()
+        if not i:
+            print "Error has occurred. Issue was not found. Please report an issue on github"
+            return
+
+        # parse the uri from this issue
         i.position = vim.current.window.cursor
         i.parse() # parse the buffer
-        i.save() # push to the server
+        i.update() # push to the server
         i.post_hook()
 
     @classmethod
     def toggle_state(cls):
 
-        i = cls._issue_from_args()
+        i = cls._issue_from_buffer()
         i.position = vim.current.window.cursor
-        i.parse()
+        i.parse() # parse current buffer to correct location
         i.change_state()
-        i.save()
+        i.update()
         i.post_hook()
 
     @classmethod
     def _issue_from_args(cls, *args, **kwargs):
     
         kwargs = utils.args_to_kwargs(args, kwargs)
+
         if not kwargs.get("args") or len(kwargs.get("args")) == 0:
             kwargs["number"] = "new"
         else:
@@ -82,13 +89,25 @@ class Issue:
             i_hash[key] = cls(**kwargs)
         return i_hash.get(key)
 
+    @classmethod
+    def _issue_from_buffer(cls):
+
+        # bname corresponds to to the issue hash key 
+        bname = vim.current.buffer.name
+
+        # check to make sure the correct pieces are here
+        mg = re.match(r"(?P<user>.*)/(?P<repo>.*)/(?P<issue>.*)", bname)
+        if not mg:
+            return None
+        return i_hash.get(bname)
+        
+
     def change_state(self):
 
         if self.data["state"] == "open":
              self.data["state"] = "closed"
         else:
              self.data["state"] = "open"
-        self.message = "State is now %s" % self.data["state"]
     
     def parse(self):
         # reset body
@@ -130,13 +149,14 @@ class Issue:
         # toggle the state of the current issue
         vim.command("map <buffer> c :python Issue.toggle_state()<cr>")
         # hit enter to browse the current url
-        vim.command("map <buffer> <cr> :normal! 0<cr>:python Issue.open()<cr>")
+        vim.command("map <buffer> <cr> :normal! 0<cr>:python Issue.browse(\"%s\")<cr>" % self.number)
 
     def draw(self):
     
         self.buffer_name = "%s/%s" % (self.repo, self.number)
         b = utils.get_buffer(self.buffer_name) 
         vim.command("1,$d")
+        vim.command("set filetype=markdown")
 
         # print out issue
         b.append("## %s # %s" % (self.repo, self.number))
@@ -161,7 +181,7 @@ class Issue:
         # remove leading line
         vim.command("1delete _")
 
-    def _save(self):
+    def update(self):
 
         if self.number == "new":
             self._create_issue()
@@ -222,6 +242,13 @@ class Issue:
 
         # get ready for the patch operation
         url = github.url(self.issue_uri)
+        print url
         data = utils.clean_data(copy.deepcopy(self.data), ["number", "user"])
+        print data
         data, status = github.request(url, "patch", data)
+        print data
+        print status
+
+
+
 

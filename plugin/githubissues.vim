@@ -33,6 +33,6 @@ EOF
 command! -nargs=* Gissues :python IssueList.show_issues(<f-args>)
 
 " create a new issue
-command! -nargs=* Gissue :python Issue.show_issue(<f-args>)
+command! -nargs=* Gissue :python Issue.open(<f-args>)
 
 

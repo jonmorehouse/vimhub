@@ -87,7 +87,7 @@ def get_buffer(buffer_name, delete = True):
 def clean_data(data, banned_keys = []):
 
     for key, value in data.iteritems():
-        if not value or value == [] or value == "" :
+        if not value or value == [] or value == "" or str(value).lower() == "none":
             banned_keys.append(key)
     for key in banned_keys:
         if data.has_key(key):
