@@ -50,8 +50,6 @@ class TestUtils(unittest.TestCase):
             "key": "B"
         }
         _data = utils.clean_data(data, ["no_key"])
-        print _data
-
 
 if __name__ == "__main__":
     unittest.main()

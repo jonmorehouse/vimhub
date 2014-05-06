@@ -177,7 +177,7 @@ class Issue:
 
         # get issue from github api if not new
         if not self.number == "new":
-            data, status = utils.github_request(utils.github_url(self.issue_uri))
+            data, status = github.request(github.url(self.issue_uri))
             if not status:
                 self.message = data
                 return
@@ -198,12 +198,12 @@ class Issue:
     def _create_issue(self):
         # create issue on the server
         uri = "repos/%s/issues" % self.repo_uri
-        url = utils.github_url(uri)
+        url = github.url(uri)
         data = utils.clean_data(copy.deepcopy(self.data), ["state"])
         if not data:
             self.message = "Issue not ready yet..."
             return
-        data, status = utils.github_request(url, "post", data)
+        data, status = github.request(url, "post", data)
         if not status:
             self.message = data
             return 
@@ -224,7 +224,7 @@ class Issue:
     def _save_issue(self):
 
         # get ready for the patch operation
-        url = utils.github_url(self.issue_uri)
+        url = github.url(self.issue_uri)
         data = utils.clean_data(copy.deepcopy(self.data), ["number", "user"])
-        data, status = utils.github_request(url, "patch", data)
+        data, status = github.request(url, "patch", data)
 

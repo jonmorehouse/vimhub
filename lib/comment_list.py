@@ -1,8 +1,8 @@
 import config
 import utils
+import github
 import time
 import re
-import user
 from collections import OrderedDict
 
 try:
@@ -14,8 +14,7 @@ class CommentList(object):
 
     def __init__(self, number, repo_uri):
 
-        self.login = user.get_login()
-        self.message = ""
+        self.login = github.user.get("login")
         self.editable_comments = {}
         self.comments = OrderedDict()
         self.user_comments = [] # list of ids that will get updated each time
@@ -100,18 +99,18 @@ class CommentList(object):
     def _edit_comment(self, cid, body):
 
         pass
-        #data, status = utils.github_request(url, "patch", {"body": body})
+        #data, status = github.request(url, "patch", {"body": body})
 
     def _delete_comment(self, cid):
 
-        url = utils.github_url(self.comments[cid]["url"])
+        url = github.url(self.comments[cid]["url"])
         del self.comments[cid]
-        data, status = utils.github_request(url, "delete")
+        data, status = github.request(url, "delete")
 
     def _create_comment(self, body):
 
-        url = utils.github_url(self.uri)
-        data, status = utils.github_request(url, "post", {"body": body})
+        url = github.url(self.uri)
+        data, status = github.request(url, "post", {"body": body})
         self._cache_comment(data)
     
     def _cache_comment(self, comment):
@@ -131,11 +130,10 @@ class CommentList(object):
             return
 
         # make the request as needed
-        url = utils.github_url(self.uri) 
-        data, status = utils.github_request(url, "get")        
+        url = github.url(self.uri) 
+        data, status = github.request(url, "get")        
         
         if not status:
-            self.message = data
             return
         for comment in data:
             self._cache_comment(comment)

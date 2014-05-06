@@ -5,8 +5,12 @@ import utils
 import config
 
 remote_hash = {}
+path_hash = {}
 
-def get_remotes(path):
+def remotes(path):
+
+    if remote_hash.get(path):
+        return remote_hash.get(path)
 
     # grab only the remotes - this is safer than using python due to global character differences amongst shells (line endings etc)
     command = "cd %s && git remote -v | awk '{ print $1 \"=\" $2 }'" % path
@@ -25,43 +29,22 @@ def get_remotes(path):
         # grab the github username
         creator = uri_pieces[-2]
         remotes[pieces[0]] = (creator, project_name)
-    return remotes
     
-def get_remote(path, upstream_preferred = False):
+    # hash
+    remote_hash[path] = remotes
+    return remote_hash.get(path)
 
-    path = utils.git_path(path)
-    print path
-
-    # generate remote hash if not already present
-    if not remote_hash.has_key(path):
-        remote_hash[path] = get_remotes(path)
-
-    # grab from the remote hash 
-    def _get_remote_from_hash(remotes, preferred, unpreferred):
-        k = remotes.keys()[:]
-        if preferred in k:
-            return remotes[preferred]
-        elif len(k) == 1:
-            return remotes[k[0]]
-        try:
-            k.remove(unpreferred)
-        except:     
-            pass
-        return remotes[k[0]]
-
-    # now return the correct 
-    remote = _get_remote_from_hash(remote_hash[path], "origin", "upstream")
-    if upstream_preferred:
-        remote = _get_remote_from_hash(remote_hash[path], "upstream", "origin")
-    return remote
-
-def get_uri(path = None, upstream_preferred = config.upstream_issues):
+def repo_path(path = None):
 
     if not path:
         path = os.getcwd()
 
-    git_path = utils.git_path(path)
-    remote = get_remote(git_path, upstream_preferred)
-    return "/".join(remote)
-
+    if not path_hash.has_key(path):
+        command = "cd %s && git rev-parse --show-toplevel" % path
+        try:
+            path_hash[path] = os.popen(command).read().strip()
+        except:
+            sys.exit(1)
+            return
+    return path_hash[path]
 
