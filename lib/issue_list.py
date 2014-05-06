@@ -84,8 +84,21 @@ class IssueList():
         # append title
         b.append("## %s" % self.repo)
         b.append("")
+        
         for i in self.issues:
-            b.append("%s \"%s @%s\" %s " % (i[0], i[1], i[2], i[3]))
+            issue_string = "%s \"%s\" " % (i[0], i[1])
+
+            if len(i[5]) > 0:
+                 issue_string += "#%s " % ",".join(i[5])
+            
+            if not (i[2] == github.user()["login"]):
+                issue_string += "@%s " % i[2]
+            if not (i[3] == "open"):
+                issue_string += i[3]
+            
+            # add labels if they exist
+            b.append(issue_string)
+
         # delete first line
         vim.command("1delete _")
 
@@ -114,7 +127,8 @@ class IssueList():
         data, status = github.request(url, "get")
         # this generates the visible list for issues that we will be handling
         for ih in data: # ih = issue_hash
-            issue = (ih["number"], ih["title"], ih["user"]["login"], ih["state"], ih["url"])
+            issue = (ih["number"], ih["title"], ih["user"]["login"], ih["state"], ih["url"], [l.get("name") for l in ih["labels"]])
             self.issues.append(issue) 
+
 
 
