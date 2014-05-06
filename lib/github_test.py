@@ -22,10 +22,5 @@ class TestGithub(unittest.TestCase):
         self.assertTrue(github.has_issues(("jonmorehouse/vim-github")))
         self.assertFalse(github.has_issues(("jonmorehouse/github-issues.vim")))
 
-    def test_repo_from_path(self):
-
-        up = "/Users/MorehouseJ09/Desktop/github-issues.vim"
-        self.assertTrue(github.repo_from_path(up))
-
 if __name__ == "__main__":
     unittest.main()
