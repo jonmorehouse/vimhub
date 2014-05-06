@@ -15,11 +15,9 @@ except ImportError:
 path_hash = {}
 url_hash = {}
 
-def minutes_ago(minutes): 
-
-
-
-
+def td_string(minutes): 
+    # convert a clever string from a time delta
+    pass
 
 def args_to_kwargs(args, kwargs):
 

@@ -37,6 +37,8 @@ def user():
 
 def has_issues(repo_uri):
     r = repo(repo_uri)
+    if not type(r) == dict:
+        return False
     return r.get("has_issues")
 
 # prefers your username's issues over the upstream fork!

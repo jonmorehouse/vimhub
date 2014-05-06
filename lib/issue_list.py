@@ -33,7 +33,6 @@ class IssueList():
         self.kwargs = kwargs
         self.repo = kwargs.get("repo")
         self.buffer_name = "%s/issues" % self.repo
-        #self.update() 
         il_hash[self.repo] = self
 
     @classmethod
@@ -45,8 +44,8 @@ class IssueList():
             kwargs["repo"] = github.repo_from_path()
 
         # case of now repo
-        if not kwargs.get("repo"):
-            print "No repo found. Please use from within a git directory"
+        if not kwargs.get("repo") or not github.has_issues(kwargs.get("repo")):
+            print "Unable to find repository. Please pass valid github uri or use from within a git directory"
             return
 
         # try to use cached il, if not, create a new one
@@ -56,8 +55,6 @@ class IssueList():
 
         # update issue list
         il.update()
-        #il.draw()
-        #il.map_buffer()
         
     @classmethod
     def issue_list_selection(cls, args = True):
@@ -75,9 +72,6 @@ class IssueList():
     
         # get current buffer!
         b = utils.get_buffer(self.buffer_name)
-        if self.message: # handle fatal error
-            b.append(self.message)
-            return 
 
         # append title
         b.append("## %s" % self.repo)
@@ -89,13 +83,9 @@ class IssueList():
 
     def update(self):
     
-        now = datetime.datetime.now()
-        td = datetime.time_delta(0, 60*config.update_interval) # 2 minutes ago
-        if not hasattr(self, "last_update") or now - :
-            self._get_issues()
-            self.last_update = now
-
-        # this method needs work!
+        self._get_issues()
+        self.draw()
+        self.map_buffer()
 
     def map_buffer(self):
         # enter into a new issue
@@ -114,7 +104,7 @@ class IssueList():
         url = github.url(uri, kwargs)
         data, status = github.request(url, "get")
         # this generates the visible list for issues that we will be handling
-        for ih in self.data: # ih = issue_hash
+        for ih in data: # ih = issue_hash
             issue = (ih["number"], ih["title"], ih["user"]["login"], ih["state"], ih["url"])
             self.issues.append(issue) 
 
