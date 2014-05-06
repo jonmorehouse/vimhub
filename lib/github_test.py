@@ -22,5 +22,9 @@ class TestGithub(unittest.TestCase):
         self.assertTrue(github.has_issues(("jonmorehouse/vim-github")))
         self.assertFalse(github.has_issues(("jonmorehouse/github-issues.vim")))
 
+    def test_time_from_string(self):
+
+        to = github.time(github.user().get("updated_at"))
+
 if __name__ == "__main__":
     unittest.main()

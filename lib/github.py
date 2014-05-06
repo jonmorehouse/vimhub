@@ -5,14 +5,22 @@ import urllib
 import urllib2
 import json
 import git
+from datetime import datetime as dt
+from datetime import timedelta as td
 
 _user = {}
 _repos = {}
+_offset = None
 
 # returns a time object from a github time string
 def time(ts):
 
-    pass
+    global _offset
+    if not _offset:
+        _offset = dt.now() - dt.utcnow()
+    # get current time (UTC)
+    t = dt.strptime(ts.replace("Z",""), "%Y-%m-%dT%H:%M:%S")
+    return t + _offset
 
 def user():
 
@@ -120,4 +128,5 @@ def request(url, method = "get", data = False, limit = config.max_api_pages):
         return next_data, status
     # successfully return everything
     return res_data + next_data, status
+
 
