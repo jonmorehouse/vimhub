@@ -14,7 +14,7 @@ class CommentList(object):
 
     def __init__(self, number, repo_uri):
 
-        self.login = github.user.get("login")
+        self.login = github.user().get("login")
         self.editable_comments = {}
         self.comments = OrderedDict()
         self.user_comments = [] # list of ids that will get updated each time

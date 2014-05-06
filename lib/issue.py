@@ -12,7 +12,7 @@ try:
 except ImportError as e:
     vim = False
 
-issue_hash = {} # hash individual issues
+i_hash = {} # hash individual issues
 
 class Issue:
 
@@ -33,48 +33,51 @@ class Issue:
         self._get_data()
 
     @classmethod
-    def issue_from_args(self, args):
-    
-        # possible args
-        # [ "jonmorehouse/repo/1", "jonmorehouse/repos/new", 1, "new", "jonmorehouse/repo", ""]
-        pass
+    def open(cls, *args):
 
+        i = cls._issue_from_args(*args)
 
     @classmethod
-    def open_issue(cls, args):
+    def browse(cls, *args):
         
-        i = cls.issue_from_args(args)
+        i = cls._issue_from_args(*args)
         if hasattr(i, "url"):
             webbrowser.open(i.url)
         i.map_buffer()
 
     @classmethod
-    def save_issue(cls, *args):
+    def save(cls, *args):
         
-        i = cls.issue_from_args(args)
+        i = cls._issue_from_args(*args)
         i.position = vim.current.window.cursor
         i.parse() # parse the buffer
         i.save() # push to the server
         i.post_hook()
 
     @classmethod
-    def show_issue(cls, number = "new", repo_uri = None):
+    def toggle_state(cls):
 
-        if not repo_uri:
-            repo_uri = git.get_uri()
-
-        i = cls.get_issue(number, repo_uri)
-        i.post_hook()
-    
-    @classmethod
-    def toggle_state(cls, state = None):
-
-        i = cls.get_current_issue()
+        i = cls._issue_from_args()
         i.position = vim.current.window.cursor
         i.parse()
         i.change_state()
         i.save()
         i.post_hook()
+
+    @classmethod
+    def _issue_from_args(cls, *args, **kwargs):
+    
+        kwargs = utils.args_to_kwargs(args, kwargs)
+        if not kwargs.get("args") or len(kwargs.get("args")) == 0:
+            kwargs["number"] = "new"
+        else:
+            kwargs["number"] = kwargs.get("args")[0]
+            del kwargs["args"]
+        
+        key = "%s/%s" % (kwargs.get("repo"), kwargs.get("number"))
+        if not i_hash.has_key(key):
+            i_hash[key] = cls(**kwargs)
+        return i_hash.get(key)
 
     def change_state(self):
 
@@ -120,11 +123,11 @@ class Issue:
     
     def map_buffer(self):
         # autocommand to call on post save ...
-        vim.command("map <buffer> s :python Issue.save_issue()<cr>")
+        vim.command("map <buffer> s :python Issue.save()<cr>")
         # toggle the state of the current issue
         vim.command("map <buffer> c :python Issue.toggle_state()<cr>")
         # hit enter to browse the current url
-        vim.command("map <buffer> <cr> :normal! 0<cr>:python Issue.open_issue()<cr>")
+        vim.command("map <buffer> <cr> :normal! 0<cr>:python Issue.open()<cr>")
 
     def draw(self):
     
@@ -207,8 +210,8 @@ class Issue:
         self.comments.number = self.number
 
         # clean up hash
-        del issue_hash["%s/%s" % (self.repo, "new")]
-        issue_hash["%s/%s" % (self.repo, self.number)] = self
+        del i_hash["%s/%s" % (self.repo, "new")]
+        i_hash["%s/%s" % (self.repo, self.number)] = self
         # delete the old buffer that we don't need any more
         vim.command("bdelete")
 

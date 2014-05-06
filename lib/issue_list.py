@@ -4,7 +4,7 @@ import git
 import re
 import imp
 import github
-import issue
+from issue import Issue
 import __builtin__
 import datetime
 
@@ -55,18 +55,26 @@ class IssueList():
 
         # update issue list
         il.update()
-        
+
     @classmethod
-    def open_issue(cls, args = True):
+    def issue(cls, *args, **kwargs):
 
         # parse buffer and get uri
-        uri = re.split(r"/issues$", vim.current.buffer.name)[0]
-        # get issue_list uri
-        issue_list = issue_list_uri_hash[uri]
-        # parse current line to get issue number
-        issue_number = re.findall(r"[\w']+", vim.current.line)[0]
-        # open the issue
-        issue.Issue.show_issue(issue_number)
+        repo = re.split(r"/issues$", vim.current.buffer.name)[0]
+        args = list(args)
+        args.append(repo)
+
+        # generate the issue to pass on
+        if kwargs.get("issue"):
+            args.append(kwargs.get("issue"))
+        else:
+            ma = re.findall(r"[\w']+", vim.current.line)
+            if not ma:
+                return
+            args.append(ma[0])
+
+        # call the method
+        getattr(Issue, kwargs.get("method"))(*args)
 
     def draw(self):
     
@@ -88,12 +96,14 @@ class IssueList():
         self.map_buffer()
 
     def map_buffer(self):
-        # enter into a new issue
-        vim.command("map <buffer> <cr> :normal! 0<cr>:python IssueList.open_issue()<cr>")
         # refresh issues lists
         vim.command("map <buffer> s :python IssueList.show_issues(\"%s\")<cr>" % self.repo)
-        # create a new issue for this repository
-        vim.command("map <buffer> i :python Issue.open_issue(\"%s\", \"new\")<cr>" % self.repo)
+        # open issue
+        vim.command("map <buffer> <cr> :normal! 0<cr>:python IssueList.issue(method=\"open\")<cr>")
+        # browse issue (online)
+        vim.command("map <buffer> o :python IssueList.issue(method=\"browse\")<cr>")
+        # create new issue
+        vim.command("map <buffer> i :python IssueList.issue(method=\"open\", issue=\"new\")<cr>")
 
     # private methods (non vim)
     def _get_issues(self, **kwargs):

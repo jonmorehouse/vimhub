@@ -1,4 +1,4 @@
-* create proper singleton for issue_list
+* try to browse non-issue line from issue_list
 
 * o mapping to browse issue from issue_list (opens directly in the browser)
 * fix plugin loading
@@ -6,5 +6,4 @@
 
 * vim fixtures for testing
 * utility to call command
-
 
