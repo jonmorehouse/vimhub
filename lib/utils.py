@@ -45,8 +45,6 @@ def get_buffer(buffer_name, delete = True):
     vim.command("edit %s" % buffer_name)
     # set it as no file - we're not directly saving any of these buffers to disk
     vim.command("set buftype=nofile")
-    # set up coloring - this should be a syntax file in the future
-    set_labels()
     return vim.current.buffer
 
 def clean_data(data, banned_keys = []):
