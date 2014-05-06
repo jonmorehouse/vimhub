@@ -30,9 +30,9 @@ from lib.issue import Issue
 EOF
 
 " create issue list
-command Gissues :python IssueList.show_issue_list()
+command! -nargs=* Gissues :python IssueList.show_issues(<f-args>)
 
 " create a new issue
-command Gissue :python Issue.show_issue()
+command! -nargs=* Gissue :python Issue.show_issue(<f-args>)
 
 

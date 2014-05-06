@@ -15,6 +15,28 @@ except ImportError:
 path_hash = {}
 url_hash = {}
 
+def args_to_kwargs(args, kwargs):
+
+    for arg in args:
+        # check if repo passed
+        if "/" in arg and not kwargs.get("repo"):
+            kwargs["repo"] = arg
+            continue
+
+        # break up the pieces and then fill kwargs
+        pieces = re.findall(r"[\w'=,]+", arg)
+        for piece in pieces: 
+            # if no equal sign - assign to state
+            if not "=" in piece:
+                if piece in ("open", "closed", "state"):
+                    kwargs["state"] = piece
+                continue
+            # user passed in custom params for github query
+            p = tuple(re.split(r"[=]+", piece))
+            kwargs[p[0]] = p[1]
+
+    return kwargs
+
 def equal_dicts(d1, d2):
 
     if json.dumps(d1) == json.dumps(d2):

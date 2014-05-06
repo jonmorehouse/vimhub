@@ -3,6 +3,7 @@ import config
 import git
 import re
 import imp
+import github
 import issue
 import __builtin__
 try:
@@ -24,39 +25,34 @@ class IssueList():
     def __init__(self, **kwargs):
         
         if not kwargs.has_key("repo"):
-            return None
-
-        # check to see if cached copy should be returned
-        il = il_hash.get(kwargs.get("repo"))
-        if il and utils.same_kwargs(il.kwargs, kwargs):
-            return il_hash[repo]
+            return 
 
         # initialize attrs
         self.kwargs = kwargs
-        self.repo = repo
+        self.repo = kwargs.get("repo")
         self.buffer_name = "%s/issues" % self.repo
-        self.update() 
-        issue_list_uri_hash[self.repo] = self
+        #self.update() 
+        il_hash[self.repo] = self
 
     @classmethod
-    def show_issue_list(cls, *args, **kwargs):
+    def show_issues(cls, *args, **kwargs):
 
-        kwargs = {"state": "open"}
-        if args:
-            # break up the pieces and then fill kwargs
-            pieces = re.findall(r"[\w'=,]+", args)
-            for piece in pieces: 
-                # if no equal sign - assign to state
-                if not "=" in piece:
-                    if piece in ("open", "closed", "state"):
-                        kwargs["state"] = piece
-                    continue
-                # user passed in custom params for github query
-                p = tuple(re.split(r"[=]+", piece))
-                kwargs[p[0]] = p[1]
+        # normalize kwargs
+        kwargs = utils.args_to_kwargs(args, kwargs)
+        if not kwargs.get("repo"):
+            kwargs["repo"] = github.repo_from_path()
 
-        # get the issue list - this should always refresh in case there are new issues (and because it shouldn't, in theory be called that much ...)
-        il = cls.get_issue_list(path, False, **kwargs)
+        # case of now repo
+        if not kwargs.get("repo"):
+            print "No repo found. Please use from within a git directory"
+            return
+
+        # try to use cached il, if not, create a new one
+        il = il_hash.get(kwargs.get("repo"))
+        if not il or not utils.equal_dicts(il.kwargs, kwargs):
+            il = cls(**kwargs)
+
+        # update the various methods etc
         il.update()
         il.draw()
         il.map_buffer()
@@ -100,7 +96,7 @@ class IssueList():
         # enter into a new issue
         vim.command("map <buffer> <cr> :normal! 0<cr>:python IssueList.issue_list_selection()<cr>")
         # refresh issues lists
-        vim.command("map <buffer> s :python IssueList.show_issue_list()<cr>")
+        vim.command("map <buffer> s :python IssueList.show_issues()<cr>")
         # create a new issue
         vim.command("map <buffer> i :python Issue.open_issue()<cr>")
         vim.command("map <buffer> a :python IssueList.open_issue()<cr>")
