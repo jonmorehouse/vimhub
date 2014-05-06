@@ -15,11 +15,11 @@ except ImportError:
 path_hash = {}
 url_hash = {}
 
-def same_kwargs(kw1, kw2):
-    
+def equal_dicts(d1, d2):
 
-
-    pass
+    if json.dumps(d1) == json.dumps(d2):
+        return True
+    return False
 
 def trim_lines(li):
 
@@ -27,14 +27,8 @@ def trim_lines(li):
     for i in range(li.count("\n")):
         li = li.strip()
     return li
-        
-def set_labels():
-
-    vim.command("set filetype=markdown")
-    vim.command(":highlight String ctermfg=7")
 
 def get_buffer(buffer_name, delete = True): 
-
     # first check if buffer is already open
     if int(vim.eval("bufloaded(\"%s\")" % buffer_name)):
         if delete:
