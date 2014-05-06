@@ -149,7 +149,7 @@ class Issue:
         # toggle the state of the current issue
         vim.command("map <buffer> c :python Issue.toggle_state()<cr>")
         # hit enter to browse the current url
-        vim.command("map <buffer> <cr> :normal! 0<cr>:python Issue.browse(\"%s\")<cr>" % self.number)
+        vim.command("map <buffer> <cr> :normal! 0<cr>:python Issue.browse(\"%s\", \"%s\")<cr>" % (self.repo, self.number))
 
     def draw(self):
     
