@@ -16,10 +16,8 @@ path_hash = {}
 url_hash = {}
 
 def same_kwargs(kw1, kw2):
+    
 
-    pass
-
-def time_ago(tstring):
 
     pass
 

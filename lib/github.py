@@ -5,6 +5,7 @@ import urllib
 import urllib2
 import json
 import git
+import re
 from datetime import datetime as dt
 from datetime import timedelta as td
 
@@ -90,12 +91,12 @@ def url(endpoint, params = {}):
 def request(url, method = "get", data = False, limit = config.max_api_pages):
 
     status = False
-    request = urllib2.Request(url)
+    req = urllib2.Request(url)
     if data:
-       request = urllib2.Request(url, json.dumps(data))
+        req = urllib2.Request(url, json.dumps(data))
     try: 
-        request.get_method = lambda: method.upper()
-        res = urllib2.urlopen(request)
+        req.get_method = lambda: method.upper()
+        res = urllib2.urlopen(req)
         status = True
         res_data = json.loads(res.read()) 
         res_headers = res.info()
@@ -121,7 +122,7 @@ def request(url, method = "get", data = False, limit = config.max_api_pages):
 
     # get the next urls data
     next_url = next_url_match.group("next_url")
-    next_data, status = github_request(next_url, method, data, int(limit) - 1)
+    next_data, status = request(next_url, method, data, int(limit) - 1)
 
     # api call failed. Return whatever was returned - assume entire api call failed
     if not status:
