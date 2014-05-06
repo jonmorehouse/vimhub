@@ -36,6 +36,7 @@ class Issue:
     def open(cls, *args):
 
         i = cls._issue_from_args(*args)
+        i.post_hook()
 
     @classmethod
     def browse(cls, *args):
@@ -49,6 +50,8 @@ class Issue:
     def save(cls, *args):
         
         i = cls._issue_from_args(*args)
+        print i
+        return
         i.position = vim.current.window.cursor
         i.parse() # parse the buffer
         i.save() # push to the server
@@ -158,7 +161,7 @@ class Issue:
         # remove leading line
         vim.command("1delete _")
 
-    def save(self):
+    def _save(self):
 
         if self.number == "new":
             self._create_issue()

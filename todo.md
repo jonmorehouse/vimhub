@@ -1,6 +1,5 @@
-* try to browse non-issue line from issue_list
+* just need to open issue / debug there and refactor finished!
 
-* o mapping to browse issue from issue_list (opens directly in the browser)
 * fix plugin loading
 * markdown syntax extension for this project
 
