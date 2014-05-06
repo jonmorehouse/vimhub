@@ -23,14 +23,13 @@ def td_string(minutes):
 def args_to_kwargs(args, kwargs):
 
     for arg in args:
-        # check if repo passed
-        if "/" in arg and not kwargs.get("repo"):
+        # get the uri 
+        if "/" in arg and github.has_issues(arg):
             kwargs["repo"] = arg
-            continue
         elif not "=" in arg and github.user_repo(arg):
             kwargs["repo"] = github.user_repo(arg)
-            continue
-        elif "=" in arg:
+        # state arguments
+        elif "=" in arg: 
             # break up the pieces and then fill kwargs
             pieces = re.findall(r"[\w'=,]+", arg)
             for piece in pieces: 
@@ -42,8 +41,14 @@ def args_to_kwargs(args, kwargs):
                 # user passed in custom params for github query
                 p = tuple(re.split(r"[=]+", piece))
                 kwargs[p[0]] = p[1]
-        else:
-            kwargs["args"] = arg
+        else: # pass standard string arguments back to the caller
+            if not kwargs.get("args"):
+                kwargs["args"] = []
+            kwargs["args"].append(arg)
+
+    # no repo - try to grab from the path
+    if not kwargs.get("repo"):
+        kwargs["repo"] = github.repo_from_path()
 
     return kwargs
 
