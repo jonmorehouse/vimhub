@@ -24,7 +24,7 @@ endif
 python <<EOF
 import os
 import sys
-sys.path.append(os.path.expandvars("$HOME/Documents/programs/github-issues.vim"))
+sys.path.append(os.path.expandvars("$HOME/Documents/programs/vim-github"))
 from lib.issue_list import IssueList 
 from lib.issue import Issue
 EOF
