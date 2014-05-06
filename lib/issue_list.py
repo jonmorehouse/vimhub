@@ -21,25 +21,36 @@ class IssueList():
             label: none
             assignee: 
     """
-    def __init__(self, path, **kwargs):
-
-        self.path = utils.git_path(path)
+    def __init__(self, path = None, **kwargs):
+        
+        self.path = path
+        if not self.path:
+            self.path = utils.git_path(path)
+        # grab all issues
         self._get_issues(**kwargs)
-        if self.error_message:
+        if self.message:
             return
         self._generate_issue_list()
         issue_list_uri_hash[self.uri] = self
 
     @classmethod
-    def get_issue_list(cls, cached = True, path = utils.git_path(), **kwargs):
+    def get_issue_list(cls, path = None, cached = True, **kwargs):
 
-        if not cached or not issue_list_hash.has_key(path):
-            # no cache / no object - create issue_list
-            issue_list_hash[path] = cls(path, **kwargs)
-        return issue_list_hash[path]
+        if not path:
+            path = utils.git_path()
+
+        if cached and issue_list_hash.has_key(path):
+            return issue_list_hash[path]
+        
+        il = cls(path, **kwargs)
+        issue_list_hash[path] = il
+        return il
     
     @classmethod
-    def show_issue_list(cls, args = None):
+    def show_issue_list(cls, args = None, path = None):
+
+        if not path:
+            path = utils.git_path()
 
         kwargs = {"state": "open"}
         if args:
@@ -56,10 +67,10 @@ class IssueList():
                 kwargs[p[0]] = p[1]
 
         # get the issue list - this should always refresh in case there are new issues (and because it shouldn't, in theory be called that much ...)
-        issue = cls.get_issue_list(False, **kwargs)
-        issue.buffer_name = "%s/issues" % issue.uri
-        issue.draw() # draw the buffer
-        issue.map_buffer() # register vim_mappings
+        il = cls.get_issue_list(path, False, **kwargs)
+        il.buffer_name = "%s/issues" % il.uri
+        il.draw()
+        il.map_buffer()
         
     @classmethod
     def issue_list_selection(cls, args = True):
@@ -80,8 +91,8 @@ class IssueList():
 
         # get current buffer!
         b = utils.get_buffer(self.buffer_name)
-        if self.error_message: # handle fatal error
-            b.append(self.error_message)
+        if self.message: # handle fatal error
+            b.append(self.message)
             return 
 
         # append title
@@ -123,10 +134,10 @@ class IssueList():
         # grab request data
         data, status = utils.github_request(url, "get")
         if not status:
-            self.error_message = data
+            self.message = data
             self.data = None
         else:
-            self.error_message = None
+            self.message = None
             self.data = data
         return status
 

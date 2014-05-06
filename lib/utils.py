@@ -71,17 +71,19 @@ def error_handler(msg):
     if config.debug:
         print msg
 
-def git_path(path = os.getcwd()):
+def git_path(path = None):
 
-    # check hash
+    if not path:
+        path = os.getcwd()
+
     if not path_hash.has_key(path):
         command = "cd %s && git rev-parse --show-toplevel" % path
         try:
             path_hash[path] = os.popen(command).read().strip()
         except:
             sys.exit(1)
+            return
     return path_hash[path]
-        
 
 def github_url(endpoint, params = {}): 
 
@@ -98,10 +100,6 @@ def github_url(endpoint, params = {}):
 def github_request(url, method = "get", data = False, limit = config.max_api_pages):
 
     status = False
-    # check the hash
-    if method == "get" and url_hash.has_key(url):
-        return url_hash[url], True
-
     request = urllib2.Request(url)
     if data:
        request = urllib2.Request(url, json.dumps(data))
@@ -136,7 +134,7 @@ def github_request(url, method = "get", data = False, limit = config.max_api_pag
 
     # get the next urls data
     next_url = next_url_match.group("next_url")
-    next_data, status = github_request(next_url, method, data, limit - 1)
+    next_data, status = github_request(next_url, method, data, int(limit) - 1)
 
     # api call failed. Return whatever was returned - assume entire api call failed
     if not status:

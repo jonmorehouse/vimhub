@@ -31,6 +31,9 @@ class CommentList(object):
     # pass in a buffer
     def draw(self, b):
 
+        if self.number == "new":
+            return
+
         b.append("")
         b.append("## Comments Issue #%s" % self.number)
         for _id, comment in self.comments.iteritems():
@@ -113,7 +116,6 @@ class CommentList(object):
     
     def _cache_comment(self, comment):
 
-        print comment
         c =  {
             "user": comment["user"]["login"],
             "body": comment["body"].splitlines(),

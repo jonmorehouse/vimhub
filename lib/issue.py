@@ -39,9 +39,6 @@ class Issue:
             repo_uri = git.get_uri()
         key = "%s/%s" % (repo_uri, str(number))
 
-        print key
-        print repo_uri
-
         if not issue_hash.has_key(key):
             issue_hash[key] = cls(number, repo_uri)
 
@@ -158,13 +155,12 @@ class Issue:
             b.append("# %s: %s" % (key.capitalize(), value))
 
         # print out body if applicable
-        if self.data.has_key("body"):
+        if self.data.has_key("body") and self.data["body"]:
             for line in self.data["body"].splitlines():
                 b.append(line)
         
         # now we need to print the comments
         self.comments.draw(b)
-
         # remove leading line
         vim.command("1delete _")
 
@@ -188,7 +184,8 @@ class Issue:
 
             # issue was successfully requested
             for key in self.defaults.keys() + ["assignee", "user"]:
-                if key in ("assignee", "user"):
+                # github will return None
+                if key in ("assignee", "user") and data.has_key(key) and data[key]:
                     self.data[key] = data[key]["login"]
                 elif key == "labels":
                     self.data[key] = [str(label["name"]) for label in data[key]]
