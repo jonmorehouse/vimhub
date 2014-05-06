@@ -244,6 +244,5 @@ class Issue:
         url = github.url(self.issue_uri)
         data = utils.clean_data(copy.deepcopy(self.data), ["number", "user", "labels"])
         data, status = github.request(url, "patch", data)
-        utils.log(data)
 
 
