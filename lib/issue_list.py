@@ -57,7 +57,7 @@ class IssueList():
         il.update()
         
     @classmethod
-    def issue_list_selection(cls, args = True):
+    def open_issue(cls, args = True):
 
         # parse buffer and get uri
         uri = re.split(r"/issues$", vim.current.buffer.name)[0]
@@ -89,12 +89,11 @@ class IssueList():
 
     def map_buffer(self):
         # enter into a new issue
-        vim.command("map <buffer> <cr> :normal! 0<cr>:python IssueList.issue_list_selection()<cr>")
+        vim.command("map <buffer> <cr> :normal! 0<cr>:python IssueList.open_issue()<cr>")
         # refresh issues lists
-        vim.command("map <buffer> s :python IssueList.show_issues()<cr>")
-        # create a new issue
-        vim.command("map <buffer> i :python Issue.open_issue()<cr>")
-        vim.command("map <buffer> a :python IssueList.open_issue()<cr>")
+        vim.command("map <buffer> s :python IssueList.show_issues(\"%s\")<cr>" % self.repo)
+        # create a new issue for this repository
+        vim.command("map <buffer> i :python Issue.open_issue(\"%s\", \"new\")<cr>" % self.repo)
 
     # private methods (non vim)
     def _get_issues(self, **kwargs):

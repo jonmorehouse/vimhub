@@ -4,6 +4,11 @@ import re
 import utils
 import config
 
+try:
+    import vim
+except:
+    vim = False
+
 remote_hash = {}
 path_hash = {}
 
@@ -15,6 +20,11 @@ def remotes(path):
     # grab only the remotes - this is safer than using python due to global character differences amongst shells (line endings etc)
     command = "cd %s && git remote -v | awk '{ print $1 \"=\" $2 }'" % path
     output = os.popen(command).read()
+
+    # redraw vim screen if there was stderr
+    if vim:
+        vim.command("redraw!")
+
     remotes = {} 
 
     # loop through each line and generate creator/project name

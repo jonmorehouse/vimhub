@@ -5,6 +5,7 @@ import urllib2
 import re
 import sys
 import json
+import github 
 import time
 
 try:
@@ -26,18 +27,23 @@ def args_to_kwargs(args, kwargs):
         if "/" in arg and not kwargs.get("repo"):
             kwargs["repo"] = arg
             continue
-
-        # break up the pieces and then fill kwargs
-        pieces = re.findall(r"[\w'=,]+", arg)
-        for piece in pieces: 
-            # if no equal sign - assign to state
-            if not "=" in piece:
-                if piece in ("open", "closed", "state"):
-                    kwargs["state"] = piece
-                continue
-            # user passed in custom params for github query
-            p = tuple(re.split(r"[=]+", piece))
-            kwargs[p[0]] = p[1]
+        elif not "=" in arg and github.user_repo(arg):
+            kwargs["repo"] = github.user_repo(arg)
+            continue
+        elif "=" in arg:
+            # break up the pieces and then fill kwargs
+            pieces = re.findall(r"[\w'=,]+", arg)
+            for piece in pieces: 
+                # if no equal sign - assign to state
+                if not "=" in piece:
+                    if piece in ("open", "closed", "state"):
+                        kwargs["state"] = piece
+                    continue
+                # user passed in custom params for github query
+                p = tuple(re.split(r"[=]+", piece))
+                kwargs[p[0]] = p[1]
+        else:
+            kwargs["args"] = arg
 
     return kwargs
 

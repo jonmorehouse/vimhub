@@ -23,6 +23,13 @@ def time(ts):
     t = dt.strptime(ts.replace("Z",""), "%Y-%m-%dT%H:%M:%S")
     return t + _offset
 
+def user_repo(arg):
+
+    r = "%s/%s" % (user().get("login"), arg)
+    if not has_issues(r):
+        return False
+    return r
+
 def user():
 
     global _user

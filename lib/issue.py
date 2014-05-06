@@ -5,6 +5,7 @@ import git
 import copy
 import comment_list
 import webbrowser
+import github
 
 try:
     import vim
@@ -23,44 +24,34 @@ class Issue:
         "body": "",
     }
 
-    def __init__(self, number, repo_uri):
+    def __init__(self, **kwargs):
 
-        self.message = None
-        self.repo_uri = repo_uri
-        self.number = number
-        self.issue_uri = "repos/%s/issues/%s" % (self.repo_uri, self.number) 
-        self.comments = comment_list.CommentList(self.number, self.repo_uri) 
+        self.repo = kwargs.get("repo")
+        self.number = kwargs.get("number")
+        self.issue_uri = "repos/%s/issues/%s" % (self.repo, self.number) 
+        self.comments = comment_list.CommentList(self.number, self.repo) 
         self._get_data()
 
     @classmethod
-    def get_issue(cls, number = "new", repo_uri = None):
+    def issue_from_args(self, args):
+    
+        # possible args
+        # [ "jonmorehouse/repo/1", "jonmorehouse/repos/new", 1, "new", "jonmorehouse/repo", ""]
+        pass
 
-        if not repo_uri:
-            repo_uri = git.get_uri()
-        key = "%s/%s" % (repo_uri, str(number))
-
-        if not issue_hash.has_key(key):
-            issue_hash[key] = cls(number, repo_uri)
-
-        return issue_hash[key]
 
     @classmethod
-    def get_current_issue(self):
-
-        return issue_hash[vim.current.buffer.name]
-
-    @classmethod
-    def open_issue(cls):
+    def open_issue(cls, args):
         
-        i = cls.get_current_issue()
+        i = cls.issue_from_args(args)
         if hasattr(i, "url"):
             webbrowser.open(i.url)
         i.map_buffer()
 
     @classmethod
-    def save_issue(cls):
+    def save_issue(cls, *args):
         
-        i = cls.get_current_issue()
+        i = cls.issue_from_args(args)
         i.position = vim.current.window.cursor
         i.parse() # parse the buffer
         i.save() # push to the server
@@ -137,12 +128,12 @@ class Issue:
 
     def draw(self):
     
-        self.buffer_name = "%s/%s" % (self.repo_uri, self.number)
+        self.buffer_name = "%s/%s" % (self.repo, self.number)
         b = utils.get_buffer(self.buffer_name) 
         vim.command("1,$d")
 
         # print out issue
-        b.append("## %s # %s" % (self.repo_uri, self.number))
+        b.append("## %s # %s" % (self.repo, self.number))
         b.append("")
 
         # iterate through all keys that aren't body
@@ -197,7 +188,7 @@ class Issue:
 
     def _create_issue(self):
         # create issue on the server
-        uri = "repos/%s/issues" % self.repo_uri
+        uri = "repos/%s/issues" % self.repo
         url = github.url(uri)
         data = utils.clean_data(copy.deepcopy(self.data), ["state"])
         if not data:
@@ -212,12 +203,12 @@ class Issue:
         self.number = str(data["number"])
         self.data["user"] = data["user"]["login"]
         self.url = data["html_url"]
-        self.issue_uri = "repos/%s/issues/%s" % (self.repo_uri, self.number)
+        self.issue_uri = "repos/%s/issues/%s" % (self.repo, self.number)
         self.comments.number = self.number
 
         # clean up hash
-        del issue_hash["%s/%s" % (self.repo_uri, "new")]
-        issue_hash["%s/%s" % (self.repo_uri, self.number)] = self
+        del issue_hash["%s/%s" % (self.repo, "new")]
+        issue_hash["%s/%s" % (self.repo, self.number)] = self
         # delete the old buffer that we don't need any more
         vim.command("bdelete")
 
