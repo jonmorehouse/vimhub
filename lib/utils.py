@@ -15,6 +15,12 @@ except ImportError:
 path_hash = {}
 url_hash = {}
 
+def minutes_ago(minutes): 
+
+
+
+
+
 def args_to_kwargs(args, kwargs):
 
     for arg in args:

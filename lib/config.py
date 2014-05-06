@@ -5,6 +5,8 @@ try:
 except ImportError:
     vim = False
 
+update_interval = 2 # minutes between updates
+
 # now initialize elements
 if vim:
     api_url = vim.eval("g:github_api_url")

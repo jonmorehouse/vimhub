@@ -6,6 +6,8 @@ import imp
 import github
 import issue
 import __builtin__
+import datetime
+
 try:
     import vim
 except ImportError as e:
@@ -52,10 +54,10 @@ class IssueList():
         if not il or not utils.equal_dicts(il.kwargs, kwargs):
             il = cls(**kwargs)
 
-        # update the various methods etc
+        # update issue list
         il.update()
-        il.draw()
-        il.map_buffer()
+        #il.draw()
+        #il.map_buffer()
         
     @classmethod
     def issue_list_selection(cls, args = True):
@@ -87,8 +89,11 @@ class IssueList():
 
     def update(self):
     
-        if not hasattr(self, "last_update"):
+        now = datetime.datetime.now()
+        td = datetime.time_delta(0, 60*config.update_interval) # 2 minutes ago
+        if not hasattr(self, "last_update") or now - :
             self._get_issues()
+            self.last_update = now
 
         # this method needs work!
 
