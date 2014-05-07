@@ -22,9 +22,15 @@ if !has("python")
 endif
 
 python <<EOF
-import os
+from os import path as p
 import sys
-sys.path.append(os.path.expandvars("$HOME/Documents/programs/vim-github"))
+import vim
+
+# generate path that needs to 
+base_path = p.abspath(p.join(vim.eval("expand('<sfile>:p:h')"), ".."))
+sys.path.append(base_path)
+
+# print lib_path
 from lib.issue_list import IssueList 
 from lib.issue import Issue
 EOF
@@ -34,5 +40,4 @@ command! -nargs=* Gissues :python IssueList.show_issues(<f-args>)
 
 " create a new issue
 command! -nargs=* Gissue :python Issue.open(<f-args>)
-
 

@@ -50,7 +50,7 @@ class IssueList():
 
         # try to use cached il, if not, create a new one
         il = il_hash.get(kwargs.get("repo"))
-        if not il or not utils.equal_dicts(il.kwargs, kwargs):
+        if not il or not utils.equal_dicts(il.kwargs, kwargs) and not kwargs.get("update"):
             il = cls(**kwargs)
 
         # update issue list
@@ -59,6 +59,7 @@ class IssueList():
     @classmethod
     def issue(cls, *args, **kwargs):
 
+        # remap old buffer
         # parse buffer and get uri
         repo = re.split(r"/issues$", vim.current.buffer.name)[0]
         args = list(args)
@@ -71,7 +72,7 @@ class IssueList():
             ma = re.findall(r"[\w']+", vim.current.line)
             if not ma:
                 return
-            args.append(ma[0])
+            args.append(ma[0].replace(".", ""))
 
         # call the method
         getattr(Issue, kwargs.get("method"))(*args)
@@ -81,12 +82,15 @@ class IssueList():
         # get current buffer!
         b = utils.get_buffer(self.buffer_name)
 
+        # set to markdown syntax for now
+        vim.command("set filetype=markdown")
+
         # append title
         b.append("## %s" % self.repo)
         b.append("")
         
         for i in self.issues:
-            issue_string = "%s \"%s\" " % (i[0], i[1])
+            issue_string = "%s. \"%s\" " % (i[0], i[1])
 
             if len(i[5]) > 0:
                  issue_string += "#%s " % ",".join(i[5])
@@ -104,13 +108,13 @@ class IssueList():
 
     def update(self):
     
-        self._get_issues()
+        self._get_issues(**self.kwargs)
         self.draw()
         self.map_buffer()
 
     def map_buffer(self):
         # refresh issues lists
-        vim.command("map <buffer> s :python IssueList.show_issues(\"%s\")<cr>" % self.repo)
+        vim.command("map <buffer> s :python IssueList.show_issues(\"%s\", update=True)<cr>" % self.repo)
         # open issue
         vim.command("map <buffer> <cr> :normal! 0<cr>:python IssueList.issue(method=\"open\")<cr>")
         # browse issue (online)
