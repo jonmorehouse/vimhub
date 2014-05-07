@@ -25,19 +25,26 @@ python <<EOF
 from os import path as p
 import sys
 import vim
+import imp
 
 # generate path that needs to 
-base_path = p.abspath(p.join(vim.eval("expand('<sfile>:p:h')"), ".."))
-sys.path.append(base_path)
+base_path = p.abspath(p.join(vim.eval("expand('<sfile>:p:h')"), "../lib"))
+sys.path.insert(0, base_path)
 
-# print lib_path
-from lib.issue_list import IssueList 
-from lib.issue import Issue
+import issue
+import issue_list
+
+def reload_vimhub():
+  imp.reload(issue)
+  imp.reload(issue_list)
 EOF
 
 " create issue list
-command! -nargs=* Gissues :python IssueList.show_issues(<f-args>)
+command! -nargs=* Gissues :python issue_list.IssueList.show_issues(<f-args>)
 
 " create a new issue
-command! -nargs=* Gissue :python Issue.open(<f-args>)
+command! -nargs=* Gissue :python issue.Issue.open(<f-args>)
+
+" reload module
+command! VimHubReload :python reload_vimhub()
 
