@@ -89,11 +89,12 @@ def log(msg, error = False):
 
     vim.command("echom \"%s\"" % msg)
 
-def clean_data(data, banned_keys = []):
+# removes any null/empty elements as well as any specified keys
+def clean_data(data, banned_keys = (), rename_keys = ()):
 
     for key in data.keys():
         value = data.get(key)
-        if not value:
+        if not value or value and key in banned_keys:
             del data[key]
         if type(value) == str and value.lower() == "none" or value == " ":
             del data[key]
@@ -101,6 +102,15 @@ def clean_data(data, banned_keys = []):
         if type(value) == list:
             data[key] = filter(lambda a: a not in (None, "", False, " "), value)
 
+    # rename keys as requested
+    for rename in rename_keys:
+        print rename
+        val = data.get(rename[0])
+        if val:
+            data[rename[1]] = val
+            del data[rename[0]]
+
+    print data
     if len(data.keys()) == 0:
         return False
 

@@ -216,7 +216,7 @@ class Issue:
         # create issue on the server
         uri = "repos/%s/issues" % self.repo
         url = github.url(uri)
-        data = utils.clean_data(copy.deepcopy(self.data), ["state", "labels", "body"])
+        data = utils.clean_data(copy.deepcopy(self.data), ["state"])
         if not data:
             utils.log("New issues require title/body")
             return

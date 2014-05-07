@@ -1,5 +1,6 @@
 import utils
 import config
+import copy
 import git
 import re
 import imp
@@ -127,12 +128,12 @@ class IssueList():
 
         self.issues = [] #(number, title, @username, url)
         uri = "repos/%s/issues" % self.repo
+        # prepare kwargs for getting the correct issues
+        kwargs = utils.clean_data(copy.deepcopy(kwargs), ("repo"), (("label", "labels"),))
         url = github.url(uri, kwargs)
         data, status = github.request(url, "get")
         # this generates the visible list for issues that we will be handling
         for ih in data: # ih = issue_hash
             issue = (ih["number"], ih["title"], ih["user"]["login"], ih["state"], ih["url"], [l.get("name") for l in ih["labels"]])
             self.issues.append(issue) 
-
-
 
