@@ -132,7 +132,7 @@ class Issue:
                 self.comments.parse(vim.current.buffer[index+1:-1])
                 break
             else: 
-                self.data["body"].append(line.strip())
+                self.data["body"].append(line)
 
         self.data["body"] = utils.trim_lines(self.data["body"])
 
