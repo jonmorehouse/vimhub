@@ -4,7 +4,7 @@
 
 ## Installation
 
-> Only tested for Mac as of now
+Only tested for Mac as of now
 
 ```
 # homebrew vim comes with python 
