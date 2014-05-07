@@ -19,6 +19,7 @@ class Issue:
     defaults = {
         "title": "",
         "assignee": utils.github.user()["login"],
+        "milestone": "",
         "state": "open",
         "labels": [],
         "body": "",
@@ -202,11 +203,13 @@ class Issue:
             # issue was successfully requested
             for key in self.defaults.keys() + ["assignee", "user"]:
                 # github will return None
-                if key in ("assignee", "user") and data.has_key(key) and data[key]:
+                if key in ("assignee", "user") and data.get(key):
                     self.data[key] = data[key]["login"]
                 elif key == "labels":
                     self.data[key] = [str(label["name"]) for label in data[key]]
-                else:
+                elif key == "milestone" and data.get("milestone"):
+                    self.data[key] = data[key]["title"]
+                elif data.get(key):
                     self.data[key] = data[key]
 
             # grab the browse url 
