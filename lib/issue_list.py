@@ -115,13 +115,13 @@ class IssueList():
 
     def map_buffer(self):
         # refresh issues lists
-        vim.command("map <buffer> s :python IssueList.show_issues(\"%s\", update=True)<cr>" % self.repo)
+        vim.command("map <buffer> s :python issue_list.IssueList.show_issues(\"%s\", update=True)<cr>" % self.repo)
         # open issue
-        vim.command("map <buffer> <cr> :normal! 0<cr>:python IssueList.issue(method=\"open\")<cr>")
+        vim.command("map <buffer> <cr> :normal! 0<cr>:python issue_list.IssueList.issue(method=\"open\")<cr>")
         # browse issue (online)
-        vim.command("map <buffer> o :python IssueList.issue(method=\"browse\")<cr>")
+        vim.command("map <buffer> o :python issue_list.IssueList.issue(method=\"browse\")<cr>")
         # create new issue
-        vim.command("map <buffer> i :python IssueList.issue(method=\"open\", issue=\"new\")<cr>")
+        vim.command("map <buffer> i :python issue_list.IssueList.issue(method=\"open\", issue=\"new\")<cr>")
 
     # private methods (non vim)
     def _get_issues(self, **kwargs):

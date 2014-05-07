@@ -146,11 +146,11 @@ class Issue:
     
     def map_buffer(self):
         # autocommand to call on post save ...
-        vim.command("map <buffer> s :python Issue.save()<cr>") # uses current buffer name
+        vim.command("map <buffer> s :python issue.Issue.save()<cr>") # uses current buffer name
         # toggle the state of the current issue
-        vim.command("map <buffer> c :python Issue.toggle_state()<cr>") # uses current buffer name
+        vim.command("map <buffer> c :python issue.Issue.toggle_state()<cr>") # uses current buffer name
         # hit enter to browse the current url
-        vim.command("map <buffer> <cr> :normal! 0<cr>:python Issue.browse(\"%s\", \"%s\")<cr>" % (self.repo, self.number)) # doesn't use current buffer name
+        vim.command("map <buffer> <cr> :normal! 0<cr>:python issue.Issue.browse(\"%s\", \"%s\")<cr>" % (self.repo, self.number)) # doesn't use current buffer name
 
     def draw(self):
     
