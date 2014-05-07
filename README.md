@@ -1,6 +1,6 @@
-# Vim Github
+# VimHub
 
-> Github Issues from Vim
+> Github Issues for Vim 
 
 ## Installation
 
@@ -96,9 +96,17 @@ Create or open an issue for editing, viewing and commenting
 # open current issue in browser
 <Normal> <ENTER>
 
+# open close issue
+<Normal> c
+
 ```
 
+## Upcoming Features
 
+> I'm planning to add a few more features to this project
 
+1. More detailed github issues (information on pull requests, open/close states etc) 
+2. Pull Requests - create/merge pull requests
+3. Ability to browse github projects locally. Browse your github projects or other projects locally
 
 
