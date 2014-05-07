@@ -21,14 +21,16 @@ Plugin 'jonmorehouse/vimhub'
 # install all vundle plugins
 vim +PluginInstall +qall
 
-# add $GITHUB_ACCESS_TOKEN to your environment
-$ export GITHUB_ACCESS_TOKEN="YOUR ACCESS TOKEN"
+# add $GITHUB_TOKEN to your environment
+$ export GITHUB_TOKEN="YOUR ACCESS TOKEN"
 
 ```
 
 ## Issue List
 
 Browse issues for any github repository you have access to
+
+If working on a fork, vimhub will use upstream issues if available.
 
 <img src='http://cl.ly/image/2a0R2M1s080v/temp.png' />
 
@@ -44,6 +46,7 @@ Browse issues for any github repository you have access to
 :Gissues jonmorehouse/vim state=all
 
 ```
+
 
 ### Available issue list commands
 
