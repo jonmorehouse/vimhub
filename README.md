@@ -84,6 +84,17 @@ Create or open an issue for editing, viewing and commenting
 
 ```
 
+### Available issue commands
+
+```
+# save current issue
+<Normal> s
+
+# open current issue in browser
+<Normal> <ENTER>
+
+```
+
 
 
 
