@@ -104,15 +104,10 @@ def clean_data(data, banned_keys = (), rename_keys = ()):
 
     # rename keys as requested
     for rename in rename_keys:
-        print rename
         val = data.get(rename[0])
         if val:
             data[rename[1]] = val
             del data[rename[0]]
-
-    print data
-    if len(data.keys()) == 0:
-        return False
 
     return data
 

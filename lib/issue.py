@@ -217,7 +217,7 @@ class Issue:
         uri = "repos/%s/issues" % self.repo
         url = github.url(uri)
         data = utils.clean_data(copy.deepcopy(self.data), ["state"])
-        if not data:
+        if not data or len(data.keys()) == 0:
             utils.log("New issues require title/body")
             return
         data, status = github.request(url, "post", data)
