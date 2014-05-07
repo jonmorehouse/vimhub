@@ -20,27 +20,36 @@ Plugin 'jonmorehouse/vimhub'
 
 # install all vundle plugins
 vim +PluginInstall +qall
+
+# add $GITHUB_ACCESS_TOKEN to your environment
+$ export GITHUB_ACCESS_TOKEN="YOUR ACCESS TOKEN"
+
 ```
 
 ## Issue List
 
-> Browse issues for any github repository you have access to
+Browse issues for any github repository you have access to
+
+<img src='http://cl.ly/image/2a0R2M1s080v/temp.png' />
 
 ```
 # browse issues for <your_username>/vim
 :Gissues vim 
 
-
 # browse jonmorehouse/vim
 :Gissues jonmorehouse/vim 
 
+# browse all issues (default state is open)
+:Gissues state=all
+:Gissues jonmorehouse/vim state=all
+
 ```
 
+### Available issue list commands
+
+Open, create and browse issues
+
 <img src='http://cl.ly/image/2a0R2M1s080v/temp.png' />
-
-### Navigating an issue list
-
-> Open, create and browse issues
 
 ```
 # press i to create a new issue
@@ -53,16 +62,29 @@ vim +PluginInstall +qall
 <Normal> b
 
 ```
-
-
-
 ## Open an Issue
 
+Create or open an issue for editing, viewing and commenting
 
-## Feature Pipeline
+<img src='http://cl.ly/image/383A0w0U1W2e/temp.png' />
 
-* ability to pass in github-uri for issue creation / issue list
-* browse project locally
-* pull-request
+```
+# open an issue in current repository (if you are working from within a git repository)
+:Gissue
+
+# open a specific issue in current repository
+:Gissue 3
+
+# open any issue
+:Gissue jonmorehouse/vim 5
+
+# open new issue in any project you have access too
+:Gissue vim
+:Gissue jonmorehouse/vim
+
+```
+
+
+
 
 
