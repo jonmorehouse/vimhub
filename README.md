@@ -4,7 +4,7 @@
 
 ## Installation
 
-Only tested for Mac as of now
+This plugin was built on mac and has only been tested with mac for now. However, assuming your vim was included with python 2.7, you shouldn't have any problems. No external python modules are required.
 
 ~~~ vim
 " Vimrc
