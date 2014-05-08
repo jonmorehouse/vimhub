@@ -25,6 +25,12 @@ vim +PluginInstall +qall
 $ export GITHUB_TOKEN="YOUR ACCESS TOKEN"
 ~~~
 
+Since I haven't solidified all of the features / functionality, I haven't included a custom syntax. I recommend using a markdown syntax plugin to keep things looking nice. 
+
+~~~ vim
+Plugin 'tpope/vim-markdown'
+~~~
+
 ## Issue List
 
 Browse issues for any github repository you have access to
