@@ -115,6 +115,7 @@ Create or open an issue for editing, viewing and commenting
 
 1. More detailed github issues (information on pull requests, open/close states etc) 
 2. Pull Requests - create/merge pull requests
-3. Ability to browse github projects locally. Browse your github projects or other projects locally
-
+3. Milestones - create,edit,open,close milestones 
+4. Omnicomplete (for milestones, and issues)
+5. Ability to auto-guess repos that are in your organization.
 
