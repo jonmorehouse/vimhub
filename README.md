@@ -7,7 +7,7 @@
 This plugin was built on mac and has only been tested with mac for now. However, assuming your vim was included with python 2.7, you shouldn't have any problems. No external python modules are required.
 
 ~~~ vim
-" Vimrc
+" vimrc
 set rtp+=~/.vim/bundle/vundle/
 call vundle#rc()
 
@@ -28,6 +28,7 @@ $ export GITHUB_TOKEN="YOUR ACCESS TOKEN"
 Since I haven't solidified all of the features / functionality, I haven't included a custom syntax. I recommend using a markdown syntax plugin to keep things looking nice. 
 
 ~~~ vim
+" vimrc
 Plugin 'tpope/vim-markdown'
 ~~~
 
