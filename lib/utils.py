@@ -65,12 +65,14 @@ def trim_lines(li):
         li = li.strip()
     return li
 
-def get_buffer(buffer_name, delete = True): 
+def get_buffer(buffer_name, delete = False): 
     # first check if buffer is already open
     if int(vim.eval("bufloaded(\"%s\")" % buffer_name)):
         if delete:
             vim.command("bdelete %s" % buffer_name)
-        else:
+        else: 
+            # clear the buffer since the python module doesn't play nice with non-appending 
+            vim.command("1,$d")
             vim.command("b %s" % buffer_name)
             return vim.current.buffer
 
