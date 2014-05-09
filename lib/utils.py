@@ -66,15 +66,6 @@ def trim_lines(li):
     return li
 
 def get_buffer(buffer_name, delete = False): 
-    # first check if buffer is already open
-    if int(vim.eval("bufloaded(\"%s\")" % buffer_name)):
-        if delete:
-            vim.command("bdelete %s" % buffer_name)
-        else: 
-            # clear the buffer since the python module doesn't play nice with non-appending 
-            vim.command("1,$d")
-            vim.command("b %s" % buffer_name)
-            return vim.current.buffer
 
     # only create a new window if required
     if not config.same_window:
@@ -82,6 +73,8 @@ def get_buffer(buffer_name, delete = False):
 
     # open buffer ...
     vim.command("edit %s" % buffer_name)
+    # clear the buffer
+    vim.command("1,$d")
     # set it as no file - we're not directly saving any of these buffers to disk
     vim.command("set buftype=nofile")
     return vim.current.buffer
