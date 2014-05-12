@@ -238,8 +238,10 @@ class Issue:
         # clean up hash
         del i_hash["%s/%s" % (self.repo, "new")]
         i_hash["%s/%s" % (self.repo, self.number)] = self
+
         # delete the old buffer that we don't need any more
-        vim.command("bdelete")
+        vim.command("silent new")
+        vim.command("bdelete %s" % self.buffer_name)
 
     def _save_issue(self):
 

@@ -79,7 +79,6 @@ def get_buffer(buffer_name, delete = False):
     vim.command("set buftype=nofile")
     return vim.current.buffer
 
-
 def log(msg, error = False):
 
     vim.command("echom \"%s\"" % msg)
