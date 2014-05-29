@@ -18,7 +18,7 @@ class Issue:
 
     defaults = {
         "title": "",
-        "assignee": utils.github.user()["login"],
+        "assignee": "",
         "milestone": "",
         "state": "open",
         "labels": [],
@@ -26,7 +26,10 @@ class Issue:
     }
 
     def __init__(self, **kwargs):
-
+        
+        # set defaults for class
+        if not Issue.defaults.get("assignee"):
+            Issue.defaults["assignee"] = utils.github.user()["login"],
         self.repo = kwargs.get("repo")
         self.number = kwargs.get("number")
         self.issue_uri = "repos/%s/issues/%s" % (self.repo, self.number) 
